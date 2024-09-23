@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'fr.arsenelapostolet.professor'
+version = 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.github.jwharm.javagi:gtk:0.10.2'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+application {
+    mainClass = 'fr.arsenelapostolet.professor.client.ProfessorClientApplication'
+}
+
+test {
+    useJUnitPlatform()
+}

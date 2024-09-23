@@ -1,2 +1,3 @@
-rootProject.name = 'professor.server'
-
+rootProject.name = 'professor'
+include 'client'
+include 'web'
