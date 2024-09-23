@@ -1,7 +1,12 @@
 package fr.arsenelapostolet.professor.client;
 
+import org.gnome.adw.ApplicationWindow;
+import org.gnome.adw.Application;
+import org.gnome.adw.CenteringPolicy;
+import org.gnome.adw.HeaderBar;
 import org.gnome.gio.ApplicationFlags;
-import org.gnome.gtk.*;
+import org.gnome.gtk.Button;
+import org.gnome.gtk.Grid;
 
 public class ProfessorClientApplication {
 
@@ -20,19 +25,30 @@ public class ProfessorClientApplication {
     public void activate() {
         var window = new ApplicationWindow(app);
         window.setTitle("GTK from Java");
-        window.setDefaultSize(300, 200);
+        window.setDefaultSize(1280, 720);
 
-        var box = Box.builder()
-                .setOrientation(Orientation.VERTICAL)
-                .setHalign(Align.CENTER)
-                .setValign(Align.CENTER)
-                .build();
+        var grid = new Grid();
+        grid.setColumnSpacing(1);
+        grid.setRowSpacing(1);
 
-        var button = Button.withLabel("Hello world!");
-        button.onClicked(window::close);
+        var headerbar = new HeaderBar();
+        headerbar.setHexpand(true);
 
-        box.append(button);
-        window.setChild(box);
+        var newButton = Button.fromIconName("document-new-symbolic");
+        headerbar.packStart(newButton);
+
+        var openButton = Button.fromIconName("document-open-symbolic");
+        openButton.setLabel("Open");
+        headerbar.packStart(openButton);
+
+        var saveButton = Button.fromIconName("document-save-symbolic");
+        headerbar.packStart(saveButton);
+        headerbar.setCenteringPolicy(CenteringPolicy.STRICT);
+        grid.attach(headerbar, 0, 0, 4, 1);
+
+
+
+        window.setContent(grid);
         window.present();
     }
 }
