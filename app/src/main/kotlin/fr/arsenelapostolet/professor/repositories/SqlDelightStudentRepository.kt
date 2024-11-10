@@ -5,6 +5,7 @@ import fr.arsenelapostolet.data.professor.StudentQueries
 import fr.arsenelapostolet.professor.Database
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
+import java.net.URI
 
 class SqlDelightStudentRepository constructor(val driver: SqlDriver) : StudentRepository {
 
@@ -24,5 +25,23 @@ class SqlDelightStudentRepository constructor(val driver: SqlDriver) : StudentRe
             )
         }
         return students
+    }
+
+    override fun getAllStudents(): Set<Student> {
+        val database = Database(driver)
+        val studentQueries: StudentQueries = database.studentQueries
+
+        return studentQueries.selectAll().executeAsList().map {
+            Student(
+                it.id,
+                it.first_name,
+                it.last_name,
+                it.email,
+                it.gitlab_username,
+                emptySet(),
+                it.efrei_class,
+                URI.create(it.project_url)
+            )
+        }.toSet()
     }
 }

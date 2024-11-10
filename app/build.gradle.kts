@@ -23,6 +23,9 @@ dependencies {
     implementation(libs.libadwaita)
     implementation(libs.sqldelight)
     implementation("app.cash.sqldelight:sqlite-driver:2.0.2")
+    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -34,7 +37,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.AppKt"
+    mainClass = "fr.arsenelapostolet.professor.AppKt"
 }
 
 tasks.named<Test>("test") {

@@ -5,13 +5,17 @@ package fr.arsenelapostolet.professor
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import fr.arsenelapostolet.data.professor.StudentQueries
+import fr.arsenelapostolet.professor.core.application.GradesApplication
+import fr.arsenelapostolet.professor.repositories.SqlDelightStudentRepository
+import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
+import fr.arsenelapostolet.professor.views.FilePicker
+import fr.arsenelapostolet.professor.views.StudentsView
 import org.gnome.adw.*
+import org.gnome.adw.Application
+import org.gnome.adw.ApplicationWindow
+import org.gnome.adw.HeaderBar
 import org.gnome.gio.ApplicationFlags
-import org.gnome.gtk.Box
-import org.gnome.gtk.Button
-import org.gnome.gtk.Label
-import org.gnome.gtk.Orientation
+import org.gnome.gtk.*
 
 
 class AppKt(args: Array<String>?) {
@@ -28,44 +32,42 @@ class AppKt(args: Array<String>?) {
         window.title = ("Professor")
         window.setDefaultSize(1280, 720)
 
-        val headerbar: HeaderBar = HeaderBar()
-        window.titlebar = headerbar
+        val box = ToolbarView()
+        val headerBar = HeaderBar()
+        val viewStack = ViewStack()
+        val switcher = ViewSwitcher()
+        switcher.stack = viewStack
+        switcher.policy = ViewSwitcherPolicy.WIDE
 
-        var box = Box(Orientation.VERTICAL, 8)
-        var stack = ViewStack()
-        stack.vexpand = true
-        box.append(stack)
-        stack.addTitled(Label("LOL"),"lol","Lol")
-        stack.addTitled(Label("XOX"),"xox","xox")
+        box.addTopBar(headerBar)
+        box.content = viewStack
 
-        val switcher = ViewSwitcherTitle()
-        /*
-        val grid = Grid()
-        grid.columnSpacing = 1
-        grid.rowSpacing = 1
+        headerBar.titleWidget = switcher
 
-        val headerbar: HeaderBar = HeaderBar()
-        headerbar.setHexpand(true)
 
-        val newButton: Button = Button.fromIconName("document-new-symbolic")
-        headerbar.packStart(newButton)
-
-        val openButton: Button = Button.fromIconName("document-open-symbolic")
-        openButton.setLabel("Open")
-        headerbar.packStart(openButton)
-
-        val saveButton: Button = Button.fromIconName("document-save-symbolic")
-        headerbar.packStart(saveButton)
-        headerbar.setCenteringPolicy(CenteringPolicy.STRICT)
-        grid.attach(headerbar, 0, 0, 4, 1)
-
+        //val toolbar = AdwToolbarView()
+        val gridGrades = Grid()
+        gridGrades.columnSpacing = 1
+        gridGrades.rowSpacing = 1
+        gridGrades.attach(Label("grades"), 0, 0, 4, 1)
         val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:test.db")
-        Database.Schema.create(driver)
-*/
+        try {
+            Database.Schema.create(driver)
+        } catch (ignored: Exception) {
+            ignored.printStackTrace()
+        }
 
+        viewStack.addTitledWithIcon(
+            StudentsView(window, StudentsViewModel(GradesApplication(SqlDelightStudentRepository(driver)), FilePicker(window))),
+            "students",
+            "Étudiants",
+            "avatar-default-symbolic"
+        )
+        viewStack.addTitledWithIcon(gridGrades, "grades", "Notes", "object-select-symbolic")
 
-        window.child = box
+        window.content = box
         window.present()
+
     }
 
     companion object {
@@ -73,10 +75,9 @@ class AppKt(args: Array<String>?) {
         fun main(args: Array<String>) {
             try {
                 AppKt(args)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-           catch (e: Exception) {
-               e.printStackTrace();
-           }
         }
     }
 }

@@ -10,6 +10,10 @@ import java.net.URISyntaxException
 
 class GradesApplication constructor(private val studentRepository: StudentRepository) {
 
+    suspend fun getStudent(): Collection<Student> {
+        return studentRepository.getAllStudents()
+    }
+
     fun createClass(className: String, csvLines: Collection<String>): CreateClassResponse {
         val students = csvLines
             .drop(1)

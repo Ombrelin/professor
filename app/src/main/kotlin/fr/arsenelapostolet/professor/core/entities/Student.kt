@@ -1,7 +1,6 @@
 package fr.arsenelapostolet.professor.core.entities
 
 import java.net.URI
-import java.util.*
 
 class Student(
     val id: String,
@@ -11,5 +10,8 @@ class Student(
     val gitlabUsername: String,
     val grades: Set<Grade>,
     val efreiClass: String,
-    val projectUrl: URI
-)
+    val projectUrl: URI,
+) {
+    val fullName: String
+        get() = "$firstName $lastName"
+}
