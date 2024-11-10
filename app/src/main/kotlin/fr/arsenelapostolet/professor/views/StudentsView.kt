@@ -15,6 +15,7 @@ import org.gnome.gtk.Image
 import org.gnome.gtk.ScrolledWindow
 import org.gnome.gtk.SelectionMode
 import org.gnome.gtk.UriLauncher
+import org.gnome.gtk.Viewport
 
 class StudentsView : ScrolledWindow {
 
@@ -53,6 +54,8 @@ class StudentsView : ScrolledWindow {
             renderStudentList(flowBox)
         }
         child = flowBox
+
+        (this.child as Viewport).scrollToFocus = false
     }
 
     private fun renderStudentList(flowBox: FlowBox) {
@@ -62,12 +65,13 @@ class StudentsView : ScrolledWindow {
             val listRow = ExpanderRow()
             listRow.title = student.fullName
             listRow.subtitle = student.gitlabUsername
+            listRow.addPrefix(Image.fromGicon(Icon.newForString("avatar-default-symbolic")))
 
             val subRowGitlabLink = ActionRow()
-            subRowGitlabLink.title = "Gitlab Project URL"
+            subRowGitlabLink.title = "Lien du projet Gitlab"
             subRowGitlabLink.useMarkup = false
             subRowGitlabLink.subtitle = student.projectUrl.toString().substring(0..60) + "..."
-            val image = Image.fromGicon(Icon.newForString("adw-external-link-symbolic"))
+            val imageGitlabLink = Image.fromGicon(Icon.newForString("adw-external-link-symbolic"))
             subRowGitlabLink.activatable = true
             subRowGitlabLink.onActivated {
                 println("test")
@@ -75,12 +79,45 @@ class StudentsView : ScrolledWindow {
                     UriLauncher(student.projectUrl.toString()).launch(window, Cancellable(), null)
                 }
             }
-            subRowGitlabLink.addSuffix(image)
+            subRowGitlabLink.addSuffix(imageGitlabLink)
+
+            val subRowMailLink = ActionRow()
+            subRowMailLink.title = "Adresse Email"
+            subRowMailLink.useMarkup = false
+            subRowMailLink.subtitle = student.email
+            val mailLinkImage = Image.fromGicon(Icon.newForString("mail-unread-symbolic"))
+            subRowMailLink.activatable = true
+            subRowMailLink.onActivated {
+                println("test")
+                GlobalScope.launch {
+                    UriLauncher("mailto:${student.email}").launch(window, Cancellable(), null)
+                }
+            }
+            subRowMailLink.addSuffix(mailLinkImage)
+
+            val subrowGitlabPage = ActionRow()
+            subrowGitlabPage.title = "Profil Gitlab"
+            subrowGitlabPage.useMarkup = false
+            subrowGitlabPage.subtitle = student.gitlabUsername
+            subrowGitlabPage.activatable = true
+            val GitlabPageImage = Image.fromGicon(Icon.newForString("adw-external-link-symbolic"))
+            subrowGitlabPage.onActivated {
+                println("test")
+                GlobalScope.launch {
+                    UriLauncher("https://gitlab.com/${student.gitlabUsername}").launch(window, Cancellable(), null)
+                }
+            }
+            subrowGitlabPage.addSuffix(GitlabPageImage)
+
             listRow.addRow(subRowGitlabLink)
+            listRow.addRow(subrowGitlabPage)
+            listRow.addRow(subRowMailLink)
+
 
             listBox.add(listRow)
 
         }
+
         flowBox.removeAll()
         flowBox.append(listBox)
     }
