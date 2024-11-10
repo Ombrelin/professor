@@ -7,10 +7,8 @@ class ViewModelProperty<T>(initialValue: T) {
         get() = _value
         set(value) {
             val oldValue = this.value
-            if (oldValue != value) {
-                _value = value
-                onChange?.invoke(oldValue, value)
-            }
+            _value = value
+            onChange?.invoke(oldValue, value)
 
         }
 
