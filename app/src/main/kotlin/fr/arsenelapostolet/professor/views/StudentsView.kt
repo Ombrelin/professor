@@ -2,26 +2,25 @@ package fr.arsenelapostolet.professor.views
 
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
 import kotlinx.coroutines.*
-import org.checkerframework.checker.units.qual.s
 import org.gnome.adw.ActionRow
 import org.gnome.adw.ApplicationWindow
 import org.gnome.adw.ExpanderRow
 import org.gnome.adw.PreferencesGroup
 import org.gnome.gio.Cancellable
+import org.gnome.gio.Icon
 import org.gnome.gtk.Align
 import org.gnome.gtk.Button
 import org.gnome.gtk.FlowBox
-import org.gnome.gtk.LinkButton
+import org.gnome.gtk.Image
 import org.gnome.gtk.ScrolledWindow
 import org.gnome.gtk.SelectionMode
 import org.gnome.gtk.UriLauncher
-import java.awt.Desktop
-import java.net.URI
 
 class StudentsView : ScrolledWindow {
 
     private val viewModel: StudentsViewModel;
     private val window: ApplicationWindow;
+
     constructor(window: ApplicationWindow, viewModel: StudentsViewModel) : super() {
         this.window = window
         val flowBox = FlowBox()
@@ -68,15 +67,15 @@ class StudentsView : ScrolledWindow {
             subRowGitlabLink.title = "Gitlab Project URL"
             subRowGitlabLink.useMarkup = false
             subRowGitlabLink.subtitle = student.projectUrl.toString().substring(0..60) + "..."
-            val button = Button()
-            button.label = "Open...";
-            button.setSizeRequest(30, 3)
-            button.onClicked {
+            val image = Image.fromGicon(Icon.newForString("adw-external-link-symbolic"))
+            subRowGitlabLink.activatable = true
+            subRowGitlabLink.onActivated {
+                println("test")
                 GlobalScope.launch {
                     UriLauncher(student.projectUrl.toString()).launch(window, Cancellable(), null)
                 }
             }
-            subRowGitlabLink.addSuffix(button)
+            subRowGitlabLink.addSuffix(image)
             listRow.addRow(subRowGitlabLink)
 
             listBox.add(listRow)
