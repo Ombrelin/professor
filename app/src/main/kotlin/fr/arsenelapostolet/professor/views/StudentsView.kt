@@ -1,5 +1,6 @@
 package fr.arsenelapostolet.professor.views
 
+import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
 import kotlinx.coroutines.*
 import org.gnome.adw.ActionRow
@@ -20,110 +21,122 @@ import org.gnome.gtk.Viewport
 
 class StudentsView : ScrolledWindow {
 
-    private val viewModel: StudentsViewModel;
-    private val window: ApplicationWindow;
+    private val viewModel: StudentsViewModel
+    private val window: ApplicationWindow
+    private val mainFlowBox = buildFlowBox()
 
     constructor(window: ApplicationWindow, viewModel: StudentsViewModel) : super() {
         this.window = window
-        val flowBox = FlowBox()
         this.viewModel = viewModel
-        this.viewModel.students.registerHandler { _, _ -> renderStudentList(flowBox) }
+
+        this.viewModel.students.registerHandler { _, _ -> renderStudentList() }
         GlobalScope.launch {
             viewModel.init()
         }
+
+        child = mainFlowBox
+        (this.child as Viewport).scrollToFocus = false
+    }
+
+    private fun buildFlowBox(): FlowBox {
+        val flowBox = FlowBox()
         flowBox.valign = Align.CENTER
         flowBox.halign = Align.CENTER
         flowBox.marginStart = 64
         flowBox.selectionMode = SelectionMode.NONE
-
-        //val spinner = Spinner()
-        //spinner.setSizeRequest(128, 128)
-        //flowBox.append(spinner)
-
-        child = flowBox
-
-        (this.child as Viewport).scrollToFocus = false
+        return flowBox
     }
 
-    private fun renderStudentList(flowBox: FlowBox) {
-        flowBox.removeAll()
+    private fun renderStudentList() {
+        mainFlowBox.removeAll()
         val spinner = Spinner()
         spinner.setSizeRequest(128, 128)
-        flowBox.append(spinner)
+        mainFlowBox.append(spinner)
 
         if (!viewModel.studentsLoaded) {
-            val button = Button()
-            button.label = "Import class..."
-            button.cssClasses = arrayOf("pill", "accent")
-            button.setSizeRequest(300, 32)
-            button.onClicked {
-                GlobalScope.launch {
-                    viewModel.importClass()
-                }
-            }
-            flowBox.removeAll()
-            flowBox.append(button)
+            val importStudentButton = buildImportStudentButton()
+            mainFlowBox.removeAll()
+            mainFlowBox.append(importStudentButton)
         } else {
-            val listBox = PreferencesGroup()
-            listBox.setSizeRequest(550, 64)
+            val studentsListBox  = createStudentsListBox()
+
             for (student in viewModel.students.value) {
-                val listRow = ExpanderRow()
-                listRow.title = student.fullName
-                listRow.subtitle = student.gitlabUsername
-                listRow.addPrefix(Image.fromGicon(Icon.newForString("avatar-default-symbolic")))
-
-                val subRowGitlabLink = ActionRow()
-                subRowGitlabLink.title = "Lien du projet Gitlab"
-                subRowGitlabLink.useMarkup = false
-                subRowGitlabLink.subtitle = student.projectUrl.toString().substring(0..60) + "..."
-                val imageGitlabLink = Image.fromGicon(Icon.newForString("adw-external-link-symbolic"))
-                subRowGitlabLink.activatable = true
-                subRowGitlabLink.onActivated {
-                    println("test")
-                    GlobalScope.launch {
-                        UriLauncher(student.projectUrl.toString()).launch(window, Cancellable(), null)
-                    }
-                }
-                subRowGitlabLink.addSuffix(imageGitlabLink)
-
-                val subRowMailLink = ActionRow()
-                subRowMailLink.title = "Adresse Email"
-                subRowMailLink.useMarkup = false
-                subRowMailLink.subtitle = student.email
-                val mailLinkImage = Image.fromGicon(Icon.newForString("mail-unread-symbolic"))
-                subRowMailLink.activatable = true
-                subRowMailLink.onActivated {
-                    println("test")
-                    GlobalScope.launch {
-                        UriLauncher("mailto:${student.email}").launch(window, Cancellable(), null)
-                    }
-                }
-                subRowMailLink.addSuffix(mailLinkImage)
-
-                val subrowGitlabPage = ActionRow()
-                subrowGitlabPage.title = "Profil Gitlab"
-                subrowGitlabPage.useMarkup = false
-                subrowGitlabPage.subtitle = student.gitlabUsername
-                subrowGitlabPage.activatable = true
-                val GitlabPageImage = Image.fromGicon(Icon.newForString("adw-external-link-symbolic"))
-                subrowGitlabPage.onActivated {
-                    println("test")
-                    GlobalScope.launch {
-                        UriLauncher("https://gitlab.com/${student.gitlabUsername}").launch(window, Cancellable(), null)
-                    }
-                }
-                subrowGitlabPage.addSuffix(GitlabPageImage)
-
-                listRow.addRow(subRowGitlabLink)
-                listRow.addRow(subrowGitlabPage)
-                listRow.addRow(subRowMailLink)
-
-
-                listBox.add(listRow)
-
+                buildStudentListBoxRow(student, studentsListBox)
             }
-            flowBox.removeAll()
-            flowBox.append(listBox)
+            mainFlowBox.removeAll()
+            mainFlowBox.append(studentsListBox)
         }
+    }
+
+    private fun createStudentsListBox(): PreferencesGroup {
+        val listBox = PreferencesGroup()
+        listBox.setSizeRequest(550, 64)
+        return listBox
+    }
+
+    private fun buildStudentListBoxRow(
+        student: Student,
+        listBox: PreferencesGroup
+    ) {
+        val listRow = ExpanderRow()
+        listRow.title = student.fullName
+        listRow.subtitle = student.gitlabUsername
+        listRow.addPrefix(Image.fromGicon(Icon.newForString("avatar-default-symbolic")))
+
+        val subRowGitlabLink = buildLinkSubRow(
+            student,
+            "Lien du projet Gitlab",
+            "adw-external-link-symbolic",
+            student.projectUrl.toString(),
+            student.projectUrl.toString().substring(0..60) + "..."
+        )
+        val subRowMailLink = buildLinkSubRow(
+            student,
+            "Adresse Email",
+            "mail-unread-symbolic",
+            "mailto:${student.email}"
+        )
+        val subrowGitlabPage = buildLinkSubRow(
+            student,
+            "Profil Gitlab",
+            "adw-external-link-symbolic",
+            "https://gitlab.com/${student.gitlabUsername}"
+        )
+
+        listRow.addRow(subRowGitlabLink)
+        listRow.addRow(subrowGitlabPage)
+        listRow.addRow(subRowMailLink)
+
+        listBox.add(listRow)
+    }
+
+    private fun buildLinkSubRow(student: Student, subRowTitle: String, icon: String, link: String, subtitle: String = ""): ActionRow {
+        val subrow = ActionRow()
+        subrow.title = subRowTitle
+        subrow.subtitle = subtitle
+        subrow.useMarkup = false
+        subrow.subtitle = student.gitlabUsername
+        subrow.activatable = true
+        val GitlabPageImage = Image.fromGicon(Icon.newForString(icon))
+        subrow.onActivated {
+            GlobalScope.launch {
+                UriLauncher(link).launch(window, Cancellable(), null)
+            }
+        }
+        subrow.addSuffix(GitlabPageImage)
+        return subrow
+    }
+
+    private fun buildImportStudentButton(): Button {
+        val button = Button()
+        button.label = "Import class..."
+        button.cssClasses = arrayOf("pill", "accent")
+        button.setSizeRequest(300, 32)
+        button.onClicked {
+            GlobalScope.launch {
+                viewModel.importClass()
+            }
+        }
+        return button
     }
 }
