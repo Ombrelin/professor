@@ -6,8 +6,10 @@ package fr.arsenelapostolet.professor
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import fr.arsenelapostolet.professor.core.application.GradesApplication
+import fr.arsenelapostolet.professor.core.repositories.StudentRepository
 import fr.arsenelapostolet.professor.repositories.SqlDelightStudentRepository
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
+import fr.arsenelapostolet.professor.viewmodels.utils.FileService
 import fr.arsenelapostolet.professor.views.FilePicker
 import fr.arsenelapostolet.professor.views.StudentsView
 import org.gnome.adw.*
@@ -16,58 +18,75 @@ import org.gnome.adw.ApplicationWindow
 import org.gnome.adw.HeaderBar
 import org.gnome.gio.ApplicationFlags
 import org.gnome.gtk.*
+import org.kodein.di.*
+import java.util.*
 
 
 class AppKt(args: Array<String>?) {
-    private val app: Application
+    private val app: Application = Application("fr.arsenelapostolet.Professor", ApplicationFlags.DEFAULT_FLAGS)
 
     init {
-        app = Application("my.example.HelloApp", ApplicationFlags.DEFAULT_FLAGS)
         app.onActivate { this.activate() }
         app.run(args)
     }
 
-    fun activate() {
-        val window: ApplicationWindow = ApplicationWindow(app)
-        window.title = ("Professor")
-        window.setDefaultSize(1280, 720)
+    private fun activate() {
+        val window = buildWindow()
 
-        val box = ToolbarView()
         val headerBar = HeaderBar()
         val viewStack = ViewStack()
-        val switcher = ViewSwitcher()
-        switcher.stack = viewStack
-        switcher.policy = ViewSwitcherPolicy.WIDE
-
+        headerBar.titleWidget = buildViewSwitcher(viewStack)
+        val box = ToolbarView()
         box.addTopBar(headerBar)
         box.content = viewStack
 
-        headerBar.titleWidget = switcher
-
-
-        //val toolbar = AdwToolbarView()
         val gridGrades = Grid()
         gridGrades.columnSpacing = 1
         gridGrades.rowSpacing = 1
         gridGrades.attach(Label("grades"), 0, 0, 4, 1)
-        val driver: SqlDriver = JdbcSqliteDriver("jdbc:sqlite:test.db")
-        try {
-            Database.Schema.create(driver)
-        } catch (ignored: Exception) {
-            ignored.printStackTrace()
+
+        val kodein = DI {
+            bindProvider<ApplicationWindow> { window }
+            bindProvider<SqlDriver> { connectToLocalDatabase() }
+            bindSingleton { GradesApplication(instance()) }
+            bindSingleton<StudentRepository> { SqlDelightStudentRepository(instance()) }
+            bindSingleton<FileService> { FilePicker(instance()) }
+            bindSingleton { StudentsViewModel(instance(), instance()) }
+            bindSingleton { StudentsView(instance(), instance()) }
         }
 
         viewStack.addTitledWithIcon(
-            StudentsView(window, StudentsViewModel(GradesApplication(SqlDelightStudentRepository(driver)), FilePicker(window))),
+            kodein.direct.instance<StudentsView>(),
             "students",
             "Étudiants",
             "avatar-default-symbolic"
         )
         viewStack.addTitledWithIcon(gridGrades, "grades", "Notes", "object-select-symbolic")
 
+
         window.content = box
         window.present()
 
+    }
+
+    private fun connectToLocalDatabase(): SqlDriver = JdbcSqliteDriver(
+        "jdbc:sqlite:test.db",
+        properties = Properties(),
+        schema = Database.Schema
+    )
+
+    private fun buildWindow(): ApplicationWindow {
+        val window = ApplicationWindow(app)
+        window.title = ("Professor")
+        window.setDefaultSize(1280, 720)
+        return window
+    }
+
+    private fun buildViewSwitcher(viewStack: ViewStack): ViewSwitcher {
+        val switcher = ViewSwitcher()
+        switcher.stack = viewStack
+        switcher.policy = ViewSwitcherPolicy.WIDE
+        return switcher
     }
 
     companion object {

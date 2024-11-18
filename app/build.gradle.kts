@@ -26,6 +26,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
+    implementation("org.kodein.di:kodein-di:7.22.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

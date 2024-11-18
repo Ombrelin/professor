@@ -8,9 +8,9 @@ import fr.arsenelapostolet.professor.core.repositories.StudentRepository
 import java.net.URI
 import java.net.URISyntaxException
 
-class GradesApplication constructor(private val studentRepository: StudentRepository) {
+class GradesApplication(private val studentRepository: StudentRepository) {
 
-    suspend fun getStudent(): Collection<Student> {
+    fun getStudent(): Collection<Student> {
         return studentRepository.getAllStudents()
     }
 
@@ -34,7 +34,7 @@ class GradesApplication constructor(private val studentRepository: StudentReposi
                 csvLine[2],
                 csvLine[4],
                 csvLine[5],
-                HashSet<Grade>(),
+                HashSet(),
                 className,
                 URI(csvLine[6])
             )
