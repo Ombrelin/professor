@@ -19,21 +19,15 @@ import org.gnome.gtk.SelectionMode
 import org.gnome.gtk.UriLauncher
 import org.gnome.gtk.Viewport
 
-class StudentsView : ScrolledWindow {
+class StudentsView(private val window: ApplicationWindow, private val viewModel: StudentsViewModel) : ScrolledWindow() {
 
-    private val viewModel: StudentsViewModel
-    private val window: ApplicationWindow
     private val mainFlowBox = buildFlowBox()
 
-    constructor(window: ApplicationWindow, viewModel: StudentsViewModel) : super() {
-        this.window = window
-        this.viewModel = viewModel
-
+    init {
         this.viewModel.students.registerHandler { _, _ -> renderStudentList() }
         GlobalScope.launch {
             viewModel.init()
         }
-
         child = mainFlowBox
         (this.child as Viewport).scrollToFocus = false
     }
