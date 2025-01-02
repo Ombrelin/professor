@@ -35,10 +35,6 @@ class GradeApplicationTests {
             assertNotNull(student.gitlabUsername)
             assertNotNull(student.projectUrl)
         }
-
-        //assertThat(result.students()).containsExactlyInAnyOrder(
-        //    studentRepository.getData().values().toArray(new Student [0])
-        //);
     }
 
 }

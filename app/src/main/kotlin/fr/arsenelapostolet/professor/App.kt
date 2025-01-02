@@ -13,11 +13,9 @@ import fr.arsenelapostolet.professor.viewmodels.utils.FileService
 import fr.arsenelapostolet.professor.views.FilePicker
 import fr.arsenelapostolet.professor.views.StudentsView
 import org.gnome.adw.*
-import org.gnome.adw.Application
-import org.gnome.adw.ApplicationWindow
-import org.gnome.adw.HeaderBar
 import org.gnome.gio.ApplicationFlags
-import org.gnome.gtk.*
+import org.gnome.gtk.Grid
+import org.gnome.gtk.Label
 import org.kodein.di.*
 import java.util.*
 

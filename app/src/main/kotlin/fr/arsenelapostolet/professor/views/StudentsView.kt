@@ -2,22 +2,14 @@ package fr.arsenelapostolet.professor.views
 
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
-import kotlinx.coroutines.*
-import org.gnome.adw.ActionRow
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.gnome.adw.*
 import org.gnome.adw.ApplicationWindow
-import org.gnome.adw.ExpanderRow
-import org.gnome.adw.PreferencesGroup
 import org.gnome.adw.Spinner
 import org.gnome.gio.Cancellable
 import org.gnome.gio.Icon
-import org.gnome.gtk.Align
-import org.gnome.gtk.Button
-import org.gnome.gtk.FlowBox
-import org.gnome.gtk.Image
-import org.gnome.gtk.ScrolledWindow
-import org.gnome.gtk.SelectionMode
-import org.gnome.gtk.UriLauncher
-import org.gnome.gtk.Viewport
+import org.gnome.gtk.*
 
 class StudentsView(private val window: ApplicationWindow, private val viewModel: StudentsViewModel) : ScrolledWindow() {
 
@@ -52,7 +44,7 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
             mainFlowBox.removeAll()
             mainFlowBox.append(importStudentButton)
         } else {
-            val studentsListBox  = createStudentsListBox()
+            val studentsListBox = createStudentsListBox()
 
             for (student in viewModel.students.value) {
                 buildStudentListBoxRow(student, studentsListBox)
@@ -70,7 +62,7 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
 
     private fun buildStudentListBoxRow(
         student: Student,
-        listBox: PreferencesGroup
+        listBox: PreferencesGroup,
     ) {
         val listRow = ExpanderRow()
         listRow.title = student.fullName
@@ -104,7 +96,13 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
         listBox.add(listRow)
     }
 
-    private fun buildLinkSubRow(student: Student, subRowTitle: String, icon: String, link: String, subtitle: String = ""): ActionRow {
+    private fun buildLinkSubRow(
+        student: Student,
+        subRowTitle: String,
+        icon: String,
+        link: String,
+        subtitle: String = "",
+    ): ActionRow {
         val subrow = ActionRow()
         subrow.title = subRowTitle
         subrow.subtitle = subtitle

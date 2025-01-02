@@ -17,13 +17,13 @@ dependencies {
     testImplementation(libs.junit.jupiter.engine)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
     implementation(libs.guava)
     implementation(libs.libadwaita)
     implementation(libs.sqldelight)
     implementation("app.cash.sqldelight:sqlite-driver:2.0.2")
     testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
     implementation("org.kodein.di:kodein-di:7.22.0")

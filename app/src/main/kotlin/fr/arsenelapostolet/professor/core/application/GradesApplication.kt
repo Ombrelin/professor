@@ -1,7 +1,6 @@
 package fr.arsenelapostolet.professor.core.application
 
 import fr.arsenelapostolet.professor.core.contracts.CreateClassResponse
-import fr.arsenelapostolet.professor.core.entities.Grade
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.core.exceptions.InvalidResourceException
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository

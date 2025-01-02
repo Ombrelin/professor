@@ -15,7 +15,9 @@ object StudentBuilder {
     var efreiClass = "lsi"
     var gitlabProjectUrl = URI.create("http://gitlab.com/student-project")
 
-    fun build(): Student = Student((id++).toString(), firstname, lastname, email, gitlabUsername, grades, efreiClass, gitlabProjectUrl)
+    fun build(): Student =
+        Student((id++).toString(), firstname, lastname, email, gitlabUsername, grades, efreiClass, gitlabProjectUrl)
+
     fun withProjectUrl(projectURI: String): StudentBuilder {
         this.gitlabProjectUrl = URI(projectURI)
         return this

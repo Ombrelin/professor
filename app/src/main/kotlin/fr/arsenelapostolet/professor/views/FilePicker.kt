@@ -1,7 +1,7 @@
 package fr.arsenelapostolet.professor.views
 
 import fr.arsenelapostolet.professor.viewmodels.utils.FileService
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
 import org.gnome.adw.ApplicationWindow
 import org.gnome.gio.AsyncReadyCallback
 import org.gnome.gio.AsyncResult

@@ -1,29 +1,37 @@
 package fr.arsenelapostolet.professor.fakes
 
-import fr.arsenelapostolet.professor.core.GitService
+import fr.arsenelapostolet.professor.core.application.GitService
 import java.net.URI
 import java.nio.file.Path
+import java.time.Clock
 import java.time.LocalDateTime
 
 class FakeGitService : GitService {
 
-    val repositories = mutableMapOf<Path, GitRepository>()
+    val repositories: MutableMap<Path, GitRepository>
+    private val clock: Clock
 
-    override fun cloneRepository(localRepository: Path, repositoryURL: URI) {
+    constructor(clock: Clock) {
+        this.repositories = mutableMapOf<Path, GitRepository>()
+        this.clock = clock
+    }
+
+
+    override suspend fun cloneRepository(localRepository: Path, repositoryURL: URI) {
         repositories[localRepository] = GitRepository(localRepository, repositoryURL, LocalDateTime.now())
     }
 
-    override fun repositoryExists(localRepository: Path): Boolean {
+    override suspend fun repositoryExists(localRepository: Path): Boolean {
         return repositories.containsKey(localRepository)
     }
 
-    override fun updateRepository(localRepository: Path) {
-        repositories[localRepository]?.lastUpdate = LocalDateTime.now()
+    override suspend fun updateRepository(localRepository: Path) {
+        repositories[localRepository]?.lastUpdate = LocalDateTime.now(clock)
     }
 
     data class GitRepository(
         val localRepositoryPath: Path,
         val url: URI,
-        var lastUpdate: LocalDateTime
+        var lastUpdate: LocalDateTime,
     )
 }
