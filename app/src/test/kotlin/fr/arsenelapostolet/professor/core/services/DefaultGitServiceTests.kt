@@ -17,7 +17,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DefaultGitServiceTest {
+class DefaultGitServiceTests {
 
     val secretService = mockk<SecretService>()
 

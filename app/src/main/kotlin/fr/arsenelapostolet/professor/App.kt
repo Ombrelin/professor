@@ -5,12 +5,21 @@ package fr.arsenelapostolet.professor
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import fr.arsenelapostolet.professor.core.application.GitApplication
+import fr.arsenelapostolet.professor.core.application.GitService
 import fr.arsenelapostolet.professor.core.application.GradesApplication
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
+import fr.arsenelapostolet.professor.core.services.DefaultGitService
+import fr.arsenelapostolet.professor.core.services.FreeDesktopSecretService
+import fr.arsenelapostolet.professor.core.services.SecretService
 import fr.arsenelapostolet.professor.repositories.SqlDelightStudentRepository
+import fr.arsenelapostolet.professor.viewmodels.GitToolsViewModel
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
+import fr.arsenelapostolet.professor.viewmodels.utils.DialogService
 import fr.arsenelapostolet.professor.viewmodels.utils.FileService
-import fr.arsenelapostolet.professor.views.FilePicker
+import fr.arsenelapostolet.professor.views.AdwaitaDialogService
+import fr.arsenelapostolet.professor.views.AdwaitaFilePicker
+import fr.arsenelapostolet.professor.views.GitToolsView
 import fr.arsenelapostolet.professor.views.StudentsView
 import org.gnome.adw.*
 import org.gnome.gio.ApplicationFlags
@@ -48,9 +57,15 @@ class AppKt(args: Array<String>?) {
             bindProvider<SqlDriver> { connectToLocalDatabase() }
             bindSingleton { GradesApplication(instance()) }
             bindSingleton<StudentRepository> { SqlDelightStudentRepository(instance()) }
-            bindSingleton<FileService> { FilePicker(instance()) }
+            bindSingleton<FileService> { AdwaitaFilePicker(instance()) }
             bindSingleton { StudentsViewModel(instance(), instance()) }
             bindSingleton { StudentsView(instance(), instance()) }
+            bindSingleton { GitApplication(instance(), instance()) }
+            bindSingleton<GitService> { DefaultGitService(instance()) }
+            bindSingleton<SecretService> { FreeDesktopSecretService() }
+            bindSingleton<DialogService> { AdwaitaDialogService(instance()) }
+            bindSingleton { GitToolsView(instance()) }
+            bindSingleton { GitToolsViewModel(instance(), instance(), instance()) }
         }
 
         viewStack.addTitledWithIcon(
@@ -60,6 +75,7 @@ class AppKt(args: Array<String>?) {
             "avatar-default-symbolic"
         )
         viewStack.addTitledWithIcon(gridGrades, "grades", "Notes", "object-select-symbolic")
+        viewStack.addTitledWithIcon( kodein.direct.instance<GitToolsView>(), "git-tools", "Outils Git", "object-select-symbolic")
 
 
         window.content = box

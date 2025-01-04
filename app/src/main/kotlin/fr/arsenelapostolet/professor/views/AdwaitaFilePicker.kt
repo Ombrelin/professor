@@ -10,7 +10,7 @@ import org.gnome.gobject.GObject
 import org.gnome.gtk.FileDialog
 import java.lang.foreign.MemorySegment
 
-class FilePicker(val window: ApplicationWindow) : FileService {
+class AdwaitaFilePicker(val window: ApplicationWindow) : FileService {
 
     override suspend fun pickFile(): String {
         val dialog = FileDialog()

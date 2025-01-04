@@ -10,26 +10,25 @@ repositories {
 }
 
 dependencies {
-    // Use the Kotlin JUnit 5 integration.
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-
-    // Use the JUnit 5 integration.
-    testImplementation(libs.junit.jupiter.engine)
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
+    implementation("de.swiesend:secret-service:2.0.1-alpha")
     implementation(libs.guava)
     implementation(libs.libadwaita)
     implementation(libs.sqldelight)
     implementation("app.cash.sqldelight:sqlite-driver:2.0.2")
+    implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
+    implementation("org.kodein.di:kodein-di:7.22.0")
+    implementation("de.swiesend:secret-service:2.0.1-alpha")
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation(libs.junit.jupiter.engine)
     testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
-    implementation("org.kodein.di:kodein-di:7.22.0")
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(22)
@@ -37,12 +36,10 @@ java {
 }
 
 application {
-    // Define the main class for the application.
     mainClass = "fr.arsenelapostolet.professor.AppKt"
 }
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
 

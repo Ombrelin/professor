@@ -33,7 +33,8 @@ class GitApplicationTests {
             .withGitlabUsername("jdurand")
             .build()
         fakeStudentRepository.data[student.id] = student
-
+        coEvery { mockClock.instant() } returns Instant.parse("2025-01-02T13:00:00Z")
+        coEvery { mockClock.zone } returns ZoneId.systemDefault()
         val fakeLocalFolder = Paths.get("/home/arsene/git/test")
 
         // When
@@ -60,7 +61,8 @@ class GitApplicationTests {
             .build()
         fakeStudentRepository.data[student.id] = student
         fakeStudentRepository.data[otherStudent.id] = otherStudent
-
+        coEvery { mockClock.instant() } returns Instant.parse("2025-01-02T13:00:00Z")
+        coEvery { mockClock.zone } returns ZoneId.systemDefault()
         val fakeLocalFolder = Paths.get("/home/arsene/git/test")
 
         // When
