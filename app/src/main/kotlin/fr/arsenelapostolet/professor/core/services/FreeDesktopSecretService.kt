@@ -1,30 +1,40 @@
 package fr.arsenelapostolet.professor.core.services
 
 import de.swiesend.secretservice.simple.SimpleCollection
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-class FreeDesktopSecretService : SecretService {
+class FreeDesktopSecretService() : SecretService {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(FreeDesktopSecretService::class.java)
+    }
+
     override fun get(secretName: String): String? {
         val simpleCollection = SimpleCollection()
         val item = simpleCollection.findItem(secretName)
 
-        if(item != null) {
+
+        if (item != null) {
             val secret = simpleCollection.getSecret(item)
-            if(secret != null) {
+            if (secret != null) {
+                logger.info("Freedesktop secret \"$secretName\" found at : $item")
                 return String(secret)
             }
         }
-       return null;
+        logger.info("Freedesktop secret \"$secretName\" not found")
+        return null;
     }
 
     private fun SimpleCollection.findItem(
         secretName: String,
     ): String? {
-        return  this
+        return this
             .getItems(mapOf<String, String>())
             .first { this.getLabel(it) == secretName }
     }
 
     override fun set(secretName: String, secretValue: String?) {
-        SimpleCollection().createItem(secretName, secretValue)
+        val item = SimpleCollection().createItem(secretName, secretValue)
+        logger.info("Freedesktop secret \"$secretName\" stored at : $item")
     }
 }

@@ -23,65 +23,86 @@ import fr.arsenelapostolet.professor.views.GitToolsView
 import fr.arsenelapostolet.professor.views.StudentsView
 import org.gnome.adw.*
 import org.gnome.gio.ApplicationFlags
+import org.gnome.gio.Resource
 import org.gnome.gtk.Grid
+import org.gnome.gtk.IconTheme
 import org.gnome.gtk.Label
 import org.kodein.di.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 
 
 class AppKt(args: Array<String>?) {
+
     private val app: Application = Application("fr.arsenelapostolet.Professor", ApplicationFlags.DEFAULT_FLAGS)
 
     init {
+        logger.info("Starting Professor")
         app.onActivate { this.activate() }
         app.run(args)
     }
 
     private fun activate() {
         val window = buildWindow()
+        val kodein = buildDependencyInjectionContainer(window)
+        val viewStack = buildViewStack(kodein)
 
-        val headerBar = HeaderBar()
-        val viewStack = ViewStack()
-        headerBar.titleWidget = buildViewSwitcher(viewStack)
-        val box = ToolbarView()
-        box.addTopBar(headerBar)
-        box.content = viewStack
-
-        val gridGrades = Grid()
-        gridGrades.columnSpacing = 1
-        gridGrades.rowSpacing = 1
-        gridGrades.attach(Label("grades"), 0, 0, 4, 1)
-
-        val kodein = DI {
-            bindProvider<ApplicationWindow> { window }
-            bindProvider<SqlDriver> { connectToLocalDatabase() }
-            bindSingleton { GradesApplication(instance()) }
-            bindSingleton<StudentRepository> { SqlDelightStudentRepository(instance()) }
-            bindSingleton<FileService> { AdwaitaFilePicker(instance()) }
-            bindSingleton { StudentsViewModel(instance(), instance()) }
-            bindSingleton { StudentsView(instance(), instance()) }
-            bindSingleton { GitApplication(instance(), instance()) }
-            bindSingleton<GitService> { DefaultGitService(instance()) }
-            bindSingleton<SecretService> { FreeDesktopSecretService() }
-            bindSingleton<DialogService> { AdwaitaDialogService(instance()) }
-            bindSingleton { GitToolsView(instance()) }
-            bindSingleton { GitToolsViewModel(instance(), instance(), instance()) }
-        }
-
-        viewStack.addTitledWithIcon(
-            kodein.direct.instance<StudentsView>(),
-            "students",
-            "Étudiants",
-            "avatar-default-symbolic"
-        )
-        viewStack.addTitledWithIcon(gridGrades, "grades", "Notes", "object-select-symbolic")
-        viewStack.addTitledWithIcon( kodein.direct.instance<GitToolsView>(), "git-tools", "Outils Git", "object-select-symbolic")
-
-
-        window.content = box
+        val headerBar = buildHeaderBar(viewStack)
+        window.content = buildViewStackBox(viewStack, headerBar)
         window.present()
 
     }
+
+    private fun buildHeaderBar(viewStack: ViewStack): HeaderBar? = HeaderBar
+        .builder()
+        .setTitleWidget(buildViewSwitcher(viewStack))
+        .build()
+
+    private fun buildViewStack(kodein: DI): ViewStack = ViewStack()
+        .also {
+            it.addTitledWithIcon(
+                kodein.direct.instance<StudentsView>(),
+                "students",
+                "Étudiants",
+                "avatar-default-symbolic"
+            )
+            it.addTitledWithIcon(buildGradesPage(), "grades", "Notes", "object-select-symbolic")
+            it.addTitledWithIcon(
+                kodein.direct.instance<GitToolsView>(),
+                "git-tools",
+                "Outils Git",
+                "preferences-system"
+            )
+        }
+
+    private fun buildDependencyInjectionContainer(window: ApplicationWindow): DI = DI {
+        bindProvider<ApplicationWindow> { window }
+        bindProvider<SqlDriver> { connectToLocalDatabase() }
+        bindSingleton { GradesApplication(instance()) }
+        bindSingleton<StudentRepository> { SqlDelightStudentRepository(instance()) }
+        bindSingleton<FileService> { AdwaitaFilePicker(instance()) }
+        bindSingleton { StudentsViewModel(instance(), instance()) }
+        bindSingleton { StudentsView(instance(), instance()) }
+        bindSingleton { GitApplication(instance(), instance()) }
+        bindSingleton<GitService> { DefaultGitService(instance()) }
+        bindSingleton<SecretService> { FreeDesktopSecretService() }
+        bindSingleton<DialogService> { AdwaitaDialogService(instance()) }
+        bindSingleton { GitToolsView(instance()) }
+        bindSingleton { GitToolsViewModel(instance(), instance(), instance()) }
+    }
+
+    private fun buildGradesPage(): Grid? = Grid.builder()
+        .setColumnSpacing(1)
+        .setRowSpacing(1)
+        .build()
+        .also { it.attach(Label("grades"), 0, 0, 4, 1) }
+
+    private fun buildViewStackBox(viewStack: ViewStack, headerBar: HeaderBar?): ToolbarView? = ToolbarView
+        .builder()
+        .setContent(viewStack)
+        .build()
+        .also { it.addTopBar(headerBar) }
 
     private fun connectToLocalDatabase(): SqlDriver = JdbcSqliteDriver(
         "jdbc:sqlite:test.db",
@@ -89,24 +110,29 @@ class AppKt(args: Array<String>?) {
         schema = Database.Schema
     )
 
-    private fun buildWindow(): ApplicationWindow {
-        val window = ApplicationWindow(app)
-        window.title = ("Professor")
-        window.setDefaultSize(1280, 720)
-        return window
-    }
+    private fun buildWindow(): ApplicationWindow = ApplicationWindow
+        .builder()
+        .setApplication(app)
+        .setTitle("Professor")
+        .setDefaultWidth(1280)
+        .setDefaultHeight(720)
+        .build()
+        .also { IconTheme.getForDisplay(it.display).addResourcePath("/icons") }
 
-    private fun buildViewSwitcher(viewStack: ViewStack): ViewSwitcher {
-        val switcher = ViewSwitcher()
-        switcher.stack = viewStack
-        switcher.policy = ViewSwitcherPolicy.WIDE
-        return switcher
-    }
+    private fun buildViewSwitcher(viewStack: ViewStack): ViewSwitcher = ViewSwitcher
+        .builder()
+        .setStack(viewStack)
+        .setPolicy(ViewSwitcherPolicy.WIDE)
+        .build()
 
     companion object {
+        val logger: Logger = LoggerFactory.getLogger(FreeDesktopSecretService::class.java)
+
         @JvmStatic
         fun main(args: Array<String>) {
             try {
+                var resource = Resource.load("src/main/resources/professor.gresource");
+                resource.resourcesRegister();
                 AppKt(args)
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -19,6 +19,7 @@ dependencies {
     implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
     implementation("org.kodein.di:kodein-di:7.22.0")
     implementation("de.swiesend:secret-service:2.0.1-alpha")
+    implementation("ch.qos.logback:logback-classic:1.5.15")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation(libs.junit.jupiter.engine)
@@ -41,6 +42,26 @@ application {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+}
+
+tasks.register<Test>("testCi") {
+    useJUnitPlatform()
+    filter {
+        excludeTestsMatching("fr.arsenelapostolet.professor.core.services.FreeDesktopSecretServiceTests")
+    }
+
+}
+
+
+tasks.register("compileResources") {
+    exec {
+        workingDir("src/main/resources")
+        commandLine("glib-compile-resources", "professor.gresource.xml")
+    }
+}
+
+tasks.named("classes") {
+    dependsOn("compileResources")
 }
 
 sqldelight {

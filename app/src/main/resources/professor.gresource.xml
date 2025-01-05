@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/icons">
+        <file alias="git-symbolic" preprocess="xml-stripblanks">icons/git-symbolic.svg</file>
+        <file alias="key-symbolic" preprocess="xml-stripblanks">icons/key-symbolic.svg</file>
+    </gresource>
+</gresources>

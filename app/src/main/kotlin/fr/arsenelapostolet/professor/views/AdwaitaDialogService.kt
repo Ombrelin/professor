@@ -15,7 +15,7 @@ class AdwaitaDialogService(private val window: ApplicationWindow) : DialogServic
 
         val dialog = Dialog()
         dialog.contentWidth = 400
-        dialog.contentHeight = 400
+        dialog.contentHeight = 200
         val toolbarView = ToolbarView()
         dialog.child = toolbarView
         toolbarView.addTopBar(HeaderBar())

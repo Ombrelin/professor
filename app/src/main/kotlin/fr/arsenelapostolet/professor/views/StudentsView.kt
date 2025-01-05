@@ -2,6 +2,8 @@ package fr.arsenelapostolet.professor.views
 
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
+import fr.arsenelapostolet.professor.views.wigets.BigButton
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.gnome.adw.*
@@ -11,6 +13,7 @@ import org.gnome.gio.Cancellable
 import org.gnome.gio.Icon
 import org.gnome.gtk.*
 
+@OptIn(DelicateCoroutinesApi::class)
 class StudentsView(private val window: ApplicationWindow, private val viewModel: StudentsViewModel) : ScrolledWindow() {
 
     private val mainFlowBox = buildFlowBox()
@@ -24,14 +27,13 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
         (this.child as Viewport).scrollToFocus = false
     }
 
-    private fun buildFlowBox(): FlowBox {
-        val flowBox = FlowBox()
-        flowBox.valign = Align.CENTER
-        flowBox.halign = Align.CENTER
-        flowBox.marginStart = 64
-        flowBox.selectionMode = SelectionMode.NONE
-        return flowBox
-    }
+    private fun buildFlowBox(): FlowBox = FlowBox
+        .builder()
+        .setValign(Align.CENTER)
+        .setHalign(Align.CENTER)
+        .setMarginStart(64)
+        .setSelectionMode(SelectionMode.NONE)
+        .build()
 
     private fun renderStudentList() {
         mainFlowBox.removeAll()
@@ -64,9 +66,10 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
         student: Student,
         listBox: PreferencesGroup,
     ) {
-        val listRow = ExpanderRow()
-        listRow.title = student.fullName
-        listRow.subtitle = student.gitlabUsername
+        val listRow = ExpanderRow.builder()
+            .setTitle(student.fullName)
+            .setSubtitle(student.gitlabUsername)
+            .build()
         listRow.addPrefix(Image.fromGicon(Icon.newForString("avatar-default-symbolic")))
 
         val subRowGitlabLink = buildLinkSubRow(
@@ -103,32 +106,43 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
         link: String,
         subtitle: String = "",
     ): ActionRow {
-        val subrow = ActionRow()
-        subrow.title = subRowTitle
-        subrow.subtitle = subtitle
-        subrow.useMarkup = false
-        subrow.subtitle = student.gitlabUsername
-        subrow.activatable = true
-        val GitlabPageImage = Image.fromGicon(Icon.newForString(icon))
+        val subrow = ActionRow.builder()
+            .setTitle(subRowTitle)
+            .setSubtitle(subtitle)
+            .setUseMarkup(false)
+            .setSubtitle(student.gitlabUsername)
+            .setActivatable(true)
+            .build()
+
+        val gitlabPageImage = Image.fromGicon(Icon.newForString(icon))
         subrow.onActivated {
             GlobalScope.launch {
                 UriLauncher(link).launch(window, Cancellable(), null)
             }
         }
-        subrow.addSuffix(GitlabPageImage)
+        subrow.addSuffix(gitlabPageImage)
         return subrow
     }
 
     private fun buildImportStudentButton(): Button {
-        val button = Button()
-        button.label = "Import class..."
-        button.cssClasses = arrayOf("pill", "accent")
-        button.setSizeRequest(300, 32)
-        button.onClicked {
+        return BigButton("Import class...") {
             GlobalScope.launch {
                 viewModel.importClass()
             }
         }
-        return button
+
+        //val button = Button.builder()
+        //    .setLabel("Import class...")
+        //    .setCssClasses(arrayOf("pill", "accent"))
+        //    .build()
+//
+        //button.setSizeRequest(300, 32)
+        //button.onClicked {
+        //    GlobalScope.launch {
+        //        viewModel.importClass()
+        //    }
+        //}
+//
+        //return button
     }
 }

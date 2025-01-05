@@ -5,11 +5,8 @@ import fr.arsenelapostolet.professor.fakes.FakeGitService
 import fr.arsenelapostolet.professor.fakes.FakeSecretService
 import fr.arsenelapostolet.professor.fakes.FakeStudentRepository
 import fr.arsenelapostolet.professor.viewmodels.utils.DialogService
-import io.mockk.Called
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -24,50 +21,33 @@ class GitToolsViewModelTests {
     private val fakeSecretService = FakeSecretService()
     private val mockDialogService = mockk<DialogService>()
 
-    private val target = GitToolsViewModel(GitApplication(FakeStudentRepository(), FakeGitService(mockClock)), fakeSecretService, mockDialogService)
+    private val target = GitToolsViewModel(
+        GitApplication(
+            FakeStudentRepository(),
+            FakeGitService(mockClock)
+        ),
+        fakeSecretService,
+        mockDialogService
+    )
 
     @Test
-    fun `init when Gitlab token doesn't exist in secrets and prompt result is null, then availability of token is false` () = runBlocking {
+    fun `init when Gitlab token doesn't exist, token is unavailable`() = runBlocking {
         // Given
         val tokenSecretName = "GITLAB_TOKEN"
-        val token = "glpat-1234"
-        val prompt = "Entrez votre token Gitlab"
-        coEvery { mockDialogService.prompt(prompt) } returns null
 
         // When
         target.init()
 
         // Then
         assertNull(fakeSecretService[tokenSecretName])
-        coVerify { mockDialogService.prompt(prompt) }
         assertFalse(target.gitlabTokenAvailable.value)
     }
 
-
     @Test
-    fun `init when Gitlab token doesn't exist in secrets, prompt it via dialog`() = runBlocking {
+    fun `init when Gitlab token exists in secrets, don't prompt it via dialog and it's available`() = runBlocking {
         // Given
         val tokenSecretName = "GITLAB_TOKEN"
         val token = "glpat-1234"
-        val prompt = "Entrez votre token Gitlab"
-        coEvery { mockDialogService.prompt(prompt) } returns token
-
-        // When
-        target.init()
-
-        // Then
-        assertEquals(token, fakeSecretService[tokenSecretName])
-        coVerify { mockDialogService.prompt(prompt) }
-        assertTrue(target.gitlabTokenAvailable.value)
-    }
-
-    @Test
-    fun `init when Gitlab token exists in secrets, don't prompt it via dialog`() = runBlocking {
-        // Given
-        val tokenSecretName = "GITLAB_TOKEN"
-        val token = "glpat-1234"
-        val prompt = "Entrez votre token Gitlab"
-        coEvery { mockDialogService.prompt(prompt) } returns token
         fakeSecretService[tokenSecretName] = token
 
         // When
@@ -75,8 +55,44 @@ class GitToolsViewModelTests {
 
         // Then
         assertEquals(token, fakeSecretService[tokenSecretName])
-        coVerify { mockDialogService wasNot Called }
         assertTrue(target.gitlabTokenAvailable.value)
     }
+
+    @Test
+    fun `updateGitlabToken when Gitlab token doesn't exists in secret, prompt it, store it in secrets and token is available`() =
+        runBlocking {
+            // Given
+            val tokenSecretName = "GITLAB_TOKEN"
+            val token = "glpat-1234"
+
+            coEvery { mockDialogService.prompt("Entrez votre token Gitlab") } returns token
+
+            // When
+            target.updateGitlabToken()
+
+            // Then
+            assertEquals(token, fakeSecretService[tokenSecretName])
+            assertTrue(target.gitlabTokenAvailable.value)
+        }
+
+    @Test
+    fun `updateGitlabToken when Gitlab token exists in secret, prompt it, store it in secrets and token is available`() =
+        runBlocking {
+            // Given
+            val tokenSecretName = "GITLAB_TOKEN"
+            val token = "glpat-1234"
+            val newToken = "glpat-456"
+
+            fakeSecretService[tokenSecretName] = token
+
+            coEvery { mockDialogService.prompt("Entrez votre token Gitlab") } returns newToken
+
+            // When
+            target.updateGitlabToken()
+
+            // Then
+            assertEquals(newToken, fakeSecretService[tokenSecretName])
+            assertTrue(target.gitlabTokenAvailable.value)
+        }
 
 }

@@ -18,18 +18,16 @@ class GitToolsViewModel(
 
     override suspend fun init() {
         var token = secretService["GITLAB_TOKEN"]
-
-        if (token == null) {
-            token = dialogService.prompt("Entrez votre token Gitlab")
-            secretService["GITLAB_TOKEN"] = token
-
-            if(token == null){
-                gitlabTokenAvailable.value = false
-                return
-            }
-        }
-        gitlabTokenAvailable.value = true
+        gitlabTokenAvailable.value = token != null
     }
+
+    suspend fun updateGitlabToken() {
+        var token = dialogService.prompt("Entrez votre token Gitlab")
+        secretService["GITLAB_TOKEN"] = token
+
+        gitlabTokenAvailable.value = token != null
+    }
+
 
     suspend fun syncLocalGitRepositories() {
         gitApplication.syncLocalGitRepositories(Paths.get(localGitDirectory))

@@ -1,9 +1,6 @@
 package fr.arsenelapostolet.professor.core.services
 
 import de.swiesend.secretservice.simple.SimpleCollection
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -15,7 +12,7 @@ class FreeDesktopSecretServiceTests {
     val target = FreeDesktopSecretService()
 
     @Test
-    fun `get, when existing secret, then returns it`(){
+    fun `get, when existing secret, then returns it`() {
         // Given
 
         SimpleCollection().createItem(secretName, secretValue)
@@ -28,7 +25,7 @@ class FreeDesktopSecretServiceTests {
     }
 
     @Test
-    fun `set, create secret`(){
+    fun `set, create secret`() {
         // Given
         val otherSecretValue = "987654321"
 

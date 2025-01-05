@@ -3,7 +3,6 @@ package fr.arsenelapostolet.professor.fakes
 import fr.arsenelapostolet.professor.core.services.SecretService
 
 
-
 class FakeSecretService : SecretService {
 
     private val secrets = mutableMapOf<String, String?>()

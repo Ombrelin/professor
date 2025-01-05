@@ -1,31 +1,26 @@
 package fr.arsenelapostolet.professor.views
 
 import fr.arsenelapostolet.professor.viewmodels.GitToolsViewModel
+import fr.arsenelapostolet.professor.views.wigets.BigButton
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.gnome.adw.ActionRow
 import org.gnome.adw.ExpanderRow
 import org.gnome.adw.PreferencesGroup
-import org.gnome.gio.Cancellable
+import org.gnome.adw.Spinner
 import org.gnome.gio.Icon
-import org.gnome.gtk.Align
-import org.gnome.gtk.Button
-import org.gnome.gtk.FlowBox
-import org.gnome.gtk.Image
-import org.gnome.gtk.Label
-import org.gnome.gtk.ScrolledWindow
-import org.gnome.gtk.SelectionMode
-import org.gnome.gtk.UriLauncher
+import org.gnome.gtk.*
 
+@OptIn(DelicateCoroutinesApi::class)
 class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() {
 
     private val mainFlowBox = buildFlowBox()
 
     init {
-        onShow {
-            GlobalScope.launch {
-                viewModel.init()
-            }
+
+        GlobalScope.launch {
+            viewModel.init()
         }
 
         child = mainFlowBox
@@ -33,28 +28,32 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
         val listRow = ExpanderRow()
         listRow.title = "Token Gitlab"
         listRow.subtitle = "Gestion du token d'authentification Gitlab"
-        listRow.addPrefix(Image.fromGicon(Icon.newForString("avatar-default-symbolic")))
-
+        listRow.addPrefix(Image.fromResource("/icons/key-symbolic"))
         val listBox = createControlsListBox()
 
-        val subrowGitlabTokenAvailability = ActionRow()
-        subrowGitlabTokenAvailability.title = "Token Gitlab"
-        subrowGitlabTokenAvailability.subtitle = "Disponibilité du token Gitlab"
-        subrowGitlabTokenAvailability.useMarkup = false
-        subrowGitlabTokenAvailability.activatable = false
+        val subrowGitlabTokenAvailability = ActionRow
+            .builder()
+            .setTitle("Token Gitlab")
+            .setSubtitle("Disponibilité du token Gitlab")
+            .setUseMarkup(false)
+            .setActivatable(false)
+            .build()
         val labelAvailability = Label(viewModel.gitlabTokenAvailable.value.toString())
         subrowGitlabTokenAvailability.addSuffix(labelAvailability)
 
-        val subrowSyncButton = ActionRow()
-        subrowSyncButton.title = "Mettre à jours"
-        subrowSyncButton.subtitle = "Mettre à jours le token d'authentification Gitlab"
-        subrowSyncButton.useMarkup = false
-        subrowSyncButton.activatable = true
-        val GitlabPageImage = Image.fromGicon(Icon.newForString("adw-external-link-symbolic"))
-        subrowSyncButton.addSuffix(GitlabPageImage)
+        val subrowSyncButton = ActionRow.builder()
+            .setTitle("Mettre à jour")
+            .setSubtitle("Mettre à jours le token d'authentification Gitlab")
+            .setUseMarkup(false)
+            .setActivatable(true)
+            .build()
+
+        val gitlabPageImage = Image.fromGicon(Icon.newForString("document-edit-symbolic"))
+
+        subrowSyncButton.addSuffix(gitlabPageImage)
         subrowSyncButton.onActivated {
             GlobalScope.launch {
-                viewModel.init()
+                viewModel.updateGitlabToken()
             }
         }
         //val button = Button()
@@ -63,16 +62,38 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
         //subrowSyncButton.addSuffix(button)
 
 
-
         listRow.addRow(subrowGitlabTokenAvailability)
         listRow.addRow(subrowSyncButton)
+
+        val listRowGitSynchronization = ExpanderRow()
+        listRowGitSynchronization.title = "Synchronisation des dépôts locaux"
+        listRowGitSynchronization.subtitle = "Synchronise les dé"
+        listRowGitSynchronization.addPrefix(Image.fromResource("/icons/key-symbolic"))
 
         listBox.add(listRow)
 
 
         mainFlowBox.append(listBox)
 
-        viewModel.gitlabTokenAvailable.registerHandler { old, new ->  labelAvailability.text = new.toString() }
+        mainFlowBox.append(buildSynchronizeButton())
+
+
+        viewModel.gitlabTokenAvailable.registerHandler { old, new -> labelAvailability.text = new.toString() }
+    }
+
+    private fun buildSynchronizeButton(): BigButton {
+        val button = BigButton("Synchronizer les dépôts")
+        button.onClicked {
+            GlobalScope.launch {
+                val spinner = Spinner()
+                mainFlowBox.append(spinner)
+                mainFlowBox.remove(button)
+                viewModel.syncLocalGitRepositories()
+                mainFlowBox.remove(spinner)
+                mainFlowBox.append(button)
+            }
+        }
+        return button;
     }
 
     private fun buildFlowBox(): FlowBox {
