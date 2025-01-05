@@ -52,18 +52,6 @@ tasks.register<Test>("testCi") {
 
 }
 
-
-tasks.register("compileResources") {
-    exec {
-        workingDir("src/main/resources")
-        commandLine("glib-compile-resources", "professor.gresource.xml")
-    }
-}
-
-tasks.named("classes") {
-    dependsOn("compileResources")
-}
-
 sqldelight {
     databases {
         create("Database") {
