@@ -6,14 +6,14 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 
-class DefaultGitService(val secretService: SecretService) : GitService {
+class DefaultGitService(secretService: SecretService) : GitService {
 
     val credentialsProvider = UsernamePasswordCredentialsProvider("Ombrelin", secretService["GITLAB_TOKEN"])
 
     override suspend fun cloneRepository(localRepository: Path, repositoryURL: URI) {
-
         Git.cloneRepository()
             .setCredentialsProvider(credentialsProvider)
             .setURI(repositoryURL.toString())
@@ -22,7 +22,10 @@ class DefaultGitService(val secretService: SecretService) : GitService {
     }
 
     override suspend fun repositoryExists(localRepository: Path): Boolean {
-        return localRepository.listDirectoryEntries(".git").size == 1
+        if (localRepository.exists()) {
+            return localRepository.listDirectoryEntries(".git").size == 1
+        }
+        return false;
     }
 
     override suspend fun updateRepository(localRepository: Path) {

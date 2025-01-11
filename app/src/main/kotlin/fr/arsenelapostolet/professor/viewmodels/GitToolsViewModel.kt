@@ -28,8 +28,7 @@ class GitToolsViewModel(
         gitlabTokenAvailable.value = token != null
     }
 
-
     suspend fun syncLocalGitRepositories() {
-        gitApplication.syncLocalGitRepositories(Paths.get(localGitDirectory))
+        gitApplication.synchronizeLocalGitRepositories(Paths.get(localGitDirectory))
     }
 }

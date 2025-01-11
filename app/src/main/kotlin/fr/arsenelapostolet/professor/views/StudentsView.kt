@@ -77,7 +77,8 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
             "Lien du projet Gitlab",
             "adw-external-link-symbolic",
             student.projectUrl.toString(),
-            student.projectUrl.toString().substring(0..60) + "..."
+            if (student.projectUrl.toString().length > 60) student.projectUrl.toString()
+                .substring(0..60) + "..." else student.projectUrl.toString()
         )
         val subRowMailLink = buildLinkSubRow(
             student,

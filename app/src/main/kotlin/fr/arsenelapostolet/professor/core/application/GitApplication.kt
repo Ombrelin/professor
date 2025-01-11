@@ -11,10 +11,12 @@ import java.nio.file.Paths
 
 class GitApplication(private val studentRepository: StudentRepository, private val gitService: GitService) {
 
-    suspend fun syncLocalGitRepositories(localFolder: Path) {
-        val duos = studentRepository
-            .getAllStudents()
-            .groupBy { it.projectUrl }
+    suspend fun synchronizeGradesFromGitlab() {
+        // TODO
+    }
+
+    suspend fun synchronizeLocalGitRepositories(localFolder: Path) {
+        val duos = getDuos()
 
         for (duo in duos) {
             processDuo(localFolder, duo)
@@ -29,6 +31,10 @@ class GitApplication(private val studentRepository: StudentRepository, private v
         }.awaitAll()
 
     }
+
+    private fun getDuos(): Map<URI, List<Student>> = studentRepository
+        .getAllStudents()
+        .groupBy { it.projectUrl }
 
     private suspend fun processDuo(
         localFolder: Path,

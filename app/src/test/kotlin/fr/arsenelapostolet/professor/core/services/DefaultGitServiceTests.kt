@@ -57,6 +57,21 @@ class DefaultGitServiceTests {
     }
 
     @Test
+    fun `repositoryExists with non existing repository and not existing folder, returns false`(@TempDir temporaryDirectory: Path) =
+        runBlocking {
+            // Given
+            coEvery { secretService["GITLAB_TOKEN"] } returns System.getenv("GITLAB_TOKEN")!!
+            val target = DefaultGitService(secretService)
+            val localRepositoryDirectory = Paths.get(temporaryDirectory.toString(), "test-repo")
+
+            // When
+            val result = target.repositoryExists(localRepositoryDirectory)
+
+            // Then
+            assertFalse(result)
+        }
+
+    @Test
     fun `repositoryExists with non existing repository, returns false`(@TempDir temporaryDirectory: Path) =
         runBlocking {
             // Given

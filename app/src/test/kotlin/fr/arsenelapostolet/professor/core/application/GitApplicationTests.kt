@@ -26,29 +26,30 @@ class GitApplicationTests {
 
 
     @Test
-    fun `syncLocalGitRepositories when no existing local repository, then clone student repository`() = runBlocking {
-        // Given
-        val student = StudentBuilder
-            .withProjectUrl("https://gitlab.com/jdurand/student-project")
-            .withGitlabUsername("jdurand")
-            .build()
-        fakeStudentRepository.data[student.id] = student
-        coEvery { mockClock.instant() } returns Instant.parse("2025-01-02T13:00:00Z")
-        coEvery { mockClock.zone } returns ZoneId.systemDefault()
-        val fakeLocalFolder = Paths.get("/home/arsene/git/test")
+    fun `synchronizeLocalGitRepositories when no existing local repository, then clone student repository`() =
+        runBlocking {
+            // Given
+            val student = StudentBuilder
+                .withProjectUrl("https://gitlab.com/jdurand/student-project")
+                .withGitlabUsername("jdurand")
+                .build()
+            fakeStudentRepository.data[student.id] = student
+            coEvery { mockClock.instant() } returns Instant.parse("2025-01-02T13:00:00Z")
+            coEvery { mockClock.zone } returns ZoneId.systemDefault()
+            val fakeLocalFolder = Paths.get("/home/arsene/git/test")
 
-        // When
-        target.syncLocalGitRepositories(fakeLocalFolder)
+            // When
+            target.synchronizeLocalGitRepositories(fakeLocalFolder)
 
-        // Then
-        val repository = fakeGitService.repositories.values.single()
-        assertEquals("/home/arsene/git/test/jdurand-student-project", repository.localRepositoryPath.toString())
-        assertEquals(student.projectUrl, repository.url)
-        assertTrue(repository.lastUpdate.isBefore(LocalDateTime.now()))
-    }
+            // Then
+            val repository = fakeGitService.repositories.values.single()
+            assertEquals("/home/arsene/git/test/jdurand-student-project", repository.localRepositoryPath.toString())
+            assertEquals(student.projectUrl, repository.url)
+            assertTrue(repository.lastUpdate.isBefore(LocalDateTime.now()))
+        }
 
     @Test
-    fun `syncLocalGitRepositories when duos, then create one repo by duo`() = runBlocking {
+    fun `synchronizeLocalGitRepositories when duos, then create one repo by duo`() = runBlocking {
         // Given
         val student = StudentBuilder
             .withProjectUrl("https://gitlab.com/jdurand/student-project")
@@ -66,7 +67,7 @@ class GitApplicationTests {
         val fakeLocalFolder = Paths.get("/home/arsene/git/test")
 
         // When
-        target.syncLocalGitRepositories(fakeLocalFolder)
+        target.synchronizeLocalGitRepositories(fakeLocalFolder)
 
         // Then
         val repository = fakeGitService.repositories.values.single()
@@ -76,7 +77,7 @@ class GitApplicationTests {
     }
 
     @Test
-    fun `syncLocalGitRepositories when repository exists, then update it`() = runBlocking {
+    fun `synchronizeLocalGitRepositories when repository exists, then update it`() = runBlocking {
         // Given
         val student = StudentBuilder
             .withProjectUrl("https://gitlab.com/jdurand/student-project")
@@ -100,16 +101,19 @@ class GitApplicationTests {
             LocalDateTime.MIN
         )
 
-        coEvery { mockClock.instant() } returns Instant.parse("2025-01-02T13:00:00Z")
+        coEvery { mockClock.instant() } returns LocalDateTime
+            .of(2025, 1, 2, 14, 0, 0)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
         coEvery { mockClock.zone } returns ZoneId.systemDefault()
 
         // When
-        target.syncLocalGitRepositories(fakeLocalFolder)
+        target.synchronizeLocalGitRepositories(fakeLocalFolder)
 
         // Then
         assertEquals(
-            fakeGitService.repositories[localRepositoryPath]!!.lastUpdate,
-            LocalDateTime.of(2025, 1, 2, 14, 0, 0)
+            LocalDateTime.of(2025, 1, 2, 14, 0, 0),
+            fakeGitService.repositories[localRepositoryPath]!!.lastUpdate
         )
     }
 

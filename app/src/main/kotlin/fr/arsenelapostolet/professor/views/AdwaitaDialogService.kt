@@ -13,38 +13,51 @@ class AdwaitaDialogService(private val window: ApplicationWindow) : DialogServic
         val semaphore = Semaphore(1, 1)
         var result: String? = null
 
-        val dialog = Dialog()
-        dialog.contentWidth = 400
-        dialog.contentHeight = 200
         val toolbarView = ToolbarView()
-        dialog.child = toolbarView
-        toolbarView.addTopBar(HeaderBar())
+            .apply { addTopBar(HeaderBar()) }
 
-        val box = Box(Orientation.VERTICAL, 32)
-        box.marginStart = 32
-        box.marginEnd = 32
-        box.marginTop = 32
-        box.marginBottom = 32
-        box.append(Label(prompt))
-        val entry = Entry()
-        box.append(entry)
+        val dialog = Dialog.builder()
+            .setContentWidth(400)
+            .setContentHeight(200)
+            .build()
+            .apply {
+                child = toolbarView
+            }
 
-        val button = Button()
-        button.label = "Ok"
-        button.cssClasses = arrayOf("pill", "accent")
-        button.onClicked {
-            result = entry.text
-            dialog.close()
-            semaphore.release()
-        }
-        box.append(button)
+        toolbarView.content = buildBox()
+            .apply {
+                append(Label(prompt))
+                val entry = Entry()
+                append(entry)
+                val child = buildButton()
+                    .apply {
+                        onClicked {
+                            result = entry.text
+                            dialog.close()
+                            semaphore.release()
+                        }
+                    }
+                append(child)
+            }
 
-        toolbarView.content = box
         dialog.present(window)
         semaphore.acquire()
 
         return result
     }
 
+    private fun buildButton(): Button = Button
+        .builder()
+        .setLabel("Ok")
+        .setCssClasses(arrayOf("pill", "accent"))
+        .build()
 
+    private fun buildBox(): Box = Box.builder()
+        .setOrientation(Orientation.VERTICAL)
+        .setSpacing(32)
+        .setMarginStart(32)
+        .setMarginEnd(32)
+        .setMarginTop(32)
+        .setMarginBottom(32)
+        .build()
 }

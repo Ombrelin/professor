@@ -44,3 +44,5 @@ bin/
 .idea
 # Ignore Gradle build output directory
 build
+
+app/src/test/resources/students-gitlab.csv

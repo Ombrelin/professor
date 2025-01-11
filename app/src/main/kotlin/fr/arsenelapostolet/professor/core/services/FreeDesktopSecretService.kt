@@ -13,7 +13,6 @@ class FreeDesktopSecretService() : SecretService {
         val simpleCollection = SimpleCollection()
         val item = simpleCollection.findItem(secretName)
 
-
         if (item != null) {
             val secret = simpleCollection.getSecret(item)
             if (secret != null) {
@@ -25,13 +24,10 @@ class FreeDesktopSecretService() : SecretService {
         return null;
     }
 
-    private fun SimpleCollection.findItem(
-        secretName: String,
-    ): String? {
-        return this
+    private fun SimpleCollection.findItem(secretName: String): String? =
+        this
             .getItems(mapOf<String, String>())
             .first { this.getLabel(it) == secretName }
-    }
 
     override fun set(secretName: String, secretValue: String?) {
         val item = SimpleCollection().createItem(secretName, secretValue)

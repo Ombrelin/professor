@@ -6,7 +6,6 @@ class BigButton : Button {
     constructor(label: String) : super() {
         this.label = label
         this.cssClasses = arrayOf("pill", "accent")
-
         this.setSizeRequest(300, 32)
     }
 
@@ -14,6 +13,5 @@ class BigButton : Button {
         this.onClicked {
             action()
         }
-
     }
 }
