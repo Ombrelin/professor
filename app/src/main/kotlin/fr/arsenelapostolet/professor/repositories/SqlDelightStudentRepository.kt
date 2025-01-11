@@ -3,6 +3,7 @@ package fr.arsenelapostolet.professor.repositories
 import app.cash.sqldelight.db.SqlDriver
 import fr.arsenelapostolet.data.professor.StudentQueries
 import fr.arsenelapostolet.professor.Database
+import fr.arsenelapostolet.professor.core.entities.Grade
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
 import java.net.URI
@@ -38,7 +39,7 @@ class SqlDelightStudentRepository constructor(val driver: SqlDriver) : StudentRe
                 it.last_name,
                 it.email,
                 it.gitlab_username,
-                emptySet(),
+                mutableListOf<Grade>(),
                 it.efrei_class,
                 URI.create(it.project_url)
             )

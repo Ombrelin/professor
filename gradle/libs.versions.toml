@@ -9,8 +9,8 @@ sqldelight = "2.0.2"
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter-engine" }
-libadwaita = {module = "io.github.jwharm.javagi:adw", version.ref = "libadwaita"}
-sqldelight = {module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight"}
+libadwaita = { module = "io.github.jwharm.javagi:adw", version.ref = "libadwaita" }
+sqldelight = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 
 
 [plugins]

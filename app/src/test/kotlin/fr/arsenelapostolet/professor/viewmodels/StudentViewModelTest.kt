@@ -46,7 +46,7 @@ class StudentViewModelTest {
             "Shepard",
             "jshepard@n7.gov.all",
             "jshepard",
-            emptySet(),
+            mutableListOf(),
             "lsi1",
             URI.create("https://gitlab.n7.gov.all/stopthecollectors")
         )

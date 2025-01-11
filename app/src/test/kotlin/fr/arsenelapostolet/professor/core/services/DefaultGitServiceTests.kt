@@ -26,7 +26,6 @@ class DefaultGitServiceTests {
     fun `cloneRepository with non existing repository clones repository to local folder`(@TempDir temporaryDirectory: Path) =
         runBlocking {
             // Given
-
             coEvery { secretService["GITLAB_TOKEN"] } returns System.getenv("GITLAB_TOKEN")!!
             val target = DefaultGitService(secretService)
             val localRepositoryDirectory = Paths.get(temporaryDirectory.toString(), "test-repo")

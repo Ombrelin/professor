@@ -1,6 +1,7 @@
 package fr.arsenelapostolet.professor.viewmodels
 
 import fr.arsenelapostolet.professor.core.application.GitApplication
+import fr.arsenelapostolet.professor.core.application.GitlabService
 import fr.arsenelapostolet.professor.fakes.FakeGitService
 import fr.arsenelapostolet.professor.fakes.FakeSecretService
 import fr.arsenelapostolet.professor.fakes.FakeStudentRepository
@@ -18,13 +19,15 @@ import kotlin.test.assertTrue
 class GitToolsViewModelTests {
 
     private val mockClock = mockk<Clock>()
+    private val mockGitlabService = mockk<GitlabService>()
     private val fakeSecretService = FakeSecretService()
     private val mockDialogService = mockk<DialogService>()
 
     private val target = GitToolsViewModel(
         GitApplication(
             FakeStudentRepository(),
-            FakeGitService(mockClock)
+            FakeGitService(mockClock),
+            mockGitlabService
         ),
         fakeSecretService,
         mockDialogService

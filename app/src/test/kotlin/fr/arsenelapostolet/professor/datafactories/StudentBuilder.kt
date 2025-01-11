@@ -4,16 +4,18 @@ import fr.arsenelapostolet.professor.core.entities.Grade
 import fr.arsenelapostolet.professor.core.entities.Student
 import java.net.URI
 
-object StudentBuilder {
-    var id = 1
+class StudentBuilder {
+    companion object {
+        var id = 1
+    }
 
-    var firstname = "Jean"
-    var lastname = "Dupont"
-    var email = "jean@dupont.fr"
-    var gitlabUsername = "jdpt"
-    var grades = emptySet<Grade>()
-    var efreiClass = "lsi"
-    var gitlabProjectUrl = URI.create("http://gitlab.com/student-project")
+    private var firstname = "Jean"
+    private var lastname = "Dupont"
+    private var email = "jean@dupont.fr"
+    private var gitlabUsername = "jdpt"
+    private var grades = mutableListOf<Grade>()
+    private var efreiClass = "lsi"
+    private var gitlabProjectUrl = URI.create("http://gitlab.com/student-project")
 
     fun build(): Student =
         Student((id++).toString(), firstname, lastname, email, gitlabUsername, grades, efreiClass, gitlabProjectUrl)
@@ -26,5 +28,10 @@ object StudentBuilder {
     fun withGitlabUsername(gitlabUsername: String): StudentBuilder {
         this.gitlabUsername = gitlabUsername
         return this
+    }
+
+    fun withGrades(grades: List<Grade>): StudentBuilder {
+        this.grades.addAll(grades)
+        return this;
     }
 }

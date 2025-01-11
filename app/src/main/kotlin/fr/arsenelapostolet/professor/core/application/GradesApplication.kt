@@ -33,7 +33,7 @@ class GradesApplication(private val studentRepository: StudentRepository) {
                 csvLine[2],
                 csvLine[4],
                 csvLine[5],
-                HashSet(),
+                mutableListOf(),
                 className,
                 URI(csvLine[6])
             )

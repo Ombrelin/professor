@@ -84,7 +84,7 @@ class AppKt(args: Array<String>?) {
         bindSingleton<FileService> { AdwaitaFilePicker(instance()) }
         bindSingleton { StudentsViewModel(instance(), instance()) }
         bindSingleton { StudentsView(instance(), instance()) }
-        bindSingleton { GitApplication(instance(), instance()) }
+        bindSingleton { GitApplication(instance(), instance(), instance()) }
         bindSingleton<GitService> { DefaultGitService(instance()) }
         bindSingleton<SecretService> { FreeDesktopSecretService() }
         bindSingleton<DialogService> { AdwaitaDialogService(instance()) }

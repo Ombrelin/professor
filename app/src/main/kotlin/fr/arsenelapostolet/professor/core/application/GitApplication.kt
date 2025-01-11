@@ -1,26 +1,83 @@
 package fr.arsenelapostolet.professor.core.application
 
+import fr.arsenelapostolet.professor.core.entities.Grade
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import java.math.BigDecimal
 import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class GitApplication(private val studentRepository: StudentRepository, private val gitService: GitService) {
+class GitApplication(
+    private val studentRepository: StudentRepository,
+    private val gitService: GitService,
+    private val gitlabService: GitlabService,
+) {
+
+    companion object {
+        private val deliverables = listOf(
+            "livrable-1",
+            "livrable-2",
+            "livrable-3",
+            "livrable-4",
+            "livrable-5"
+        )
+    }
 
     suspend fun synchronizeGradesFromGitlab() {
-        // TODO
+        val duos = getDuos()
+        val projectsNames = duos
+            .keys
+            .map { extractProjectNameFromGitlabUrl(it) }
+
+        val comments =
+            gitlabService.getMergeRequestsWithLabelComments(projectsNames, deliverables.map { "${it}-corrige" })
+
+        val gradedStudents = mutableSetOf<Student>()
+        for (comment in comments) {
+            updateStudentsGrades(comment, duos)
+        }
+        studentRepository.saveStudents(gradedStudents)
+    }
+
+    private fun updateStudentsGrades(
+        comment: GitlabService.GradedMergeRequestComment,
+        duos: Map<URI, List<Student>>,
+    ) {
+        val grade = parseGrade(comment)
+        val duo = duos
+            .values
+            .single { it.any { student -> student.gitlabUsername == comment.mergeRequestAuthorUsername } }
+
+        val deliverable = comment.label.replace("-corrige", "")
+
+        for (student in duo) {
+
+            val existingGradeForThisDeliverable = student.grades.firstOrNull { it.deliverable == deliverable }
+
+            if (existingGradeForThisDeliverable == null) {
+                student.grades.add(Grade(grade, deliverable))
+            } else {
+                existingGradeForThisDeliverable.score = grade
+            }
+
+        }
+    }
+
+    private fun parseGrade(comment: GitlabService.GradedMergeRequestComment): BigDecimal {
+        val grade = comment.comment.split("\n")
+            .filter { it.contains("Total") }
+            .map { it.split(" ").last().split("/").first() }
+            .map { BigDecimal(it) }
+            .single()
+        return grade
     }
 
     suspend fun synchronizeLocalGitRepositories(localFolder: Path) {
         val duos = getDuos()
-
-        for (duo in duos) {
-            processDuo(localFolder, duo)
-        }
 
         duos.map {
             coroutineScope {
@@ -51,6 +108,12 @@ class GitApplication(private val studentRepository: StudentRepository, private v
     private fun getLocalRepositoryFolderName(duo: List<Student>): Path {
         val projectUrl = duo.first().projectUrl
         val usernames = duo.joinToString("-") { it.gitlabUsername }
-        return Paths.get("${usernames}-${projectUrl.toString().split("/").last()}")
+        val folderName = "${usernames}-${projectUrl.toString().split("/").last()}"
+        return Paths.get(folderName)
+    }
+
+    private fun extractProjectNameFromGitlabUrl(uri: URI): String {
+        val splitUri = uri.toString().split("/")
+        return "${splitUri[3]}/${splitUri[4]}"
     }
 }
