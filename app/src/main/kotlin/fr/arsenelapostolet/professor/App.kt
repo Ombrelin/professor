@@ -3,16 +3,16 @@
  */
 package fr.arsenelapostolet.professor
 
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import fr.arsenelapostolet.professor.core.application.GitApplication
 import fr.arsenelapostolet.professor.core.application.GitService
+import fr.arsenelapostolet.professor.core.application.GitlabService
 import fr.arsenelapostolet.professor.core.application.GradesApplication
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
 import fr.arsenelapostolet.professor.core.services.DefaultGitService
+import fr.arsenelapostolet.professor.core.services.DefaultGitlabService
 import fr.arsenelapostolet.professor.core.services.FreeDesktopSecretService
 import fr.arsenelapostolet.professor.core.services.SecretService
-import fr.arsenelapostolet.professor.repositories.SqlDelightStudentRepository
+import fr.arsenelapostolet.professor.repositories.SQLightStudentRepository
 import fr.arsenelapostolet.professor.viewmodels.GitToolsViewModel
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
 import fr.arsenelapostolet.professor.viewmodels.utils.DialogService
@@ -30,6 +30,8 @@ import org.gnome.gtk.Label
 import org.kodein.di.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.sql.Connection
+import java.sql.DriverManager
 import java.util.*
 
 
@@ -78,9 +80,9 @@ class AppKt(args: Array<String>?) {
 
     private fun buildDependencyInjectionContainer(window: ApplicationWindow): DI = DI {
         bindProvider<ApplicationWindow> { window }
-        bindProvider<SqlDriver> { connectToLocalDatabase() }
+        bindProvider<Connection> { connectToLocalDatabase() }
         bindSingleton { GradesApplication(instance()) }
-        bindSingleton<StudentRepository> { SqlDelightStudentRepository(instance()) }
+        bindSingleton<StudentRepository> { SQLightStudentRepository(instance()) }
         bindSingleton<FileService> { AdwaitaFilePicker(instance()) }
         bindSingleton { StudentsViewModel(instance(), instance()) }
         bindSingleton { StudentsView(instance(), instance()) }
@@ -90,6 +92,13 @@ class AppKt(args: Array<String>?) {
         bindSingleton<DialogService> { AdwaitaDialogService(instance()) }
         bindSingleton { GitToolsView(instance()) }
         bindSingleton { GitToolsViewModel(instance(), instance(), instance()) }
+        bindSingleton<GitlabService> { DefaultGitlabService(instance()) }
+    }
+
+    private fun connectToLocalDatabase(): Connection {
+        val url = "jdbc:sqlite:test.db}"
+        return DriverManager
+            .getConnection(url);
     }
 
     private fun buildGradesPage(): Grid? = Grid.builder()
@@ -103,12 +112,6 @@ class AppKt(args: Array<String>?) {
         .setContent(viewStack)
         .build()
         .also { it.addTopBar(headerBar) }
-
-    private fun connectToLocalDatabase(): SqlDriver = JdbcSqliteDriver(
-        "jdbc:sqlite:test.db",
-        properties = Properties(),
-        schema = Database.Schema
-    )
 
     private fun buildWindow(): ApplicationWindow = ApplicationWindow
         .builder()

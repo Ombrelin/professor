@@ -14,7 +14,7 @@ class GitToolsViewModel(
 ) : ViewModel {
 
     val gitlabTokenAvailable = ViewModelProperty<Boolean>(false)
-    val localGitDirectory = "/home/arsene/git/adv-java"
+    val localGitDirectory = "/home/arsene/git/adv-java-dev"
 
     override suspend fun init() {
         var token = secretService["GITLAB_TOKEN"]

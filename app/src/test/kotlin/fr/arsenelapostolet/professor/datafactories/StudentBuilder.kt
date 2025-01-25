@@ -34,4 +34,9 @@ class StudentBuilder {
         this.grades.addAll(grades)
         return this;
     }
+
+    fun withEmail(email: String): StudentBuilder {
+        this.email = email
+        return this
+    }
 }
