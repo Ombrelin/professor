@@ -3,15 +3,9 @@
  */
 package fr.arsenelapostolet.professor
 
-import fr.arsenelapostolet.professor.core.application.GitApplication
-import fr.arsenelapostolet.professor.core.application.GitService
-import fr.arsenelapostolet.professor.core.application.GitlabService
-import fr.arsenelapostolet.professor.core.application.GradesApplication
+import fr.arsenelapostolet.professor.core.application.*
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
-import fr.arsenelapostolet.professor.core.services.DefaultGitService
-import fr.arsenelapostolet.professor.core.services.DefaultGitlabService
-import fr.arsenelapostolet.professor.core.services.FreeDesktopSecretService
-import fr.arsenelapostolet.professor.core.services.SecretService
+import fr.arsenelapostolet.professor.core.services.*
 import fr.arsenelapostolet.professor.repositories.SQLightStudentRepository
 import fr.arsenelapostolet.professor.viewmodels.GitToolsViewModel
 import fr.arsenelapostolet.professor.viewmodels.StudentsViewModel
@@ -30,9 +24,9 @@ import org.gnome.gtk.Label
 import org.kodein.di.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 import java.sql.Connection
 import java.sql.DriverManager
-import java.util.*
 
 
 class AppKt(args: Array<String>?) {
@@ -79,8 +73,9 @@ class AppKt(args: Array<String>?) {
         }
 
     private fun buildDependencyInjectionContainer(window: ApplicationWindow): DI = DI {
+        val storageService = UserDirectoryStorageService()
         bindProvider<ApplicationWindow> { window }
-        bindProvider<Connection> { connectToLocalDatabase() }
+        bindProvider<Connection> { connectToLocalDatabase(storageService.getStorageDirectoryPath()) }
         bindSingleton { GradesApplication(instance()) }
         bindSingleton<StudentRepository> { SQLightStudentRepository(instance()) }
         bindSingleton<FileService> { AdwaitaFilePicker(instance()) }
@@ -93,10 +88,12 @@ class AppKt(args: Array<String>?) {
         bindSingleton { GitToolsView(instance()) }
         bindSingleton { GitToolsViewModel(instance(), instance(), instance()) }
         bindSingleton<GitlabService> { DefaultGitlabService(instance()) }
+        bindSingleton<StorageService> { storageService }
     }
 
-    private fun connectToLocalDatabase(): Connection {
-        val url = "jdbc:sqlite:test.db}"
+    private fun connectToLocalDatabase(localStorageDirectory: Path): Connection {
+        val dbFilePath = localStorageDirectory.resolve("test.db")
+        val url = "jdbc:sqlite:${dbFilePath}"
         return DriverManager
             .getConnection(url);
     }

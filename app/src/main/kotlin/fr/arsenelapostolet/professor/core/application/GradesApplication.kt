@@ -26,6 +26,16 @@ class GradesApplication(private val studentRepository: StudentRepository) {
     }
 
     private fun parseStudentFromCsv(className: String, csvLine: Array<String>): Student {
+        if(csvLine.size != 7){
+            throw InvalidResourceException(
+                String.format(
+                    "Line with id %s is invalid : %s",
+                    csvLine[0],
+                    csvLine.joinToString(",")
+                )
+            )
+        }
+
         try {
             return Student(
                 csvLine[0],

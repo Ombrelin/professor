@@ -6,6 +6,7 @@ import fr.arsenelapostolet.professor.datafactories.StudentBuilder
 import fr.arsenelapostolet.professor.fakes.FakeGitService
 import fr.arsenelapostolet.professor.fakes.FakeGitService.GitRepository
 import fr.arsenelapostolet.professor.fakes.FakeStudentRepository
+import fr.arsenelapostolet.professor.viewmodels.utils.ViewModelProperty
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
@@ -43,7 +44,7 @@ class GitApplicationTests {
             val fakeLocalFolder = Paths.get("/home/arsene/git/test")
 
             // When
-            target.synchronizeLocalGitRepositories(fakeLocalFolder)
+            target.synchronizeLocalGitRepositories(fakeLocalFolder, ViewModelProperty<Double>(0.0))
 
             // Then
             val repository = fakeGitService.repositories.values.single()
@@ -71,7 +72,7 @@ class GitApplicationTests {
         val fakeLocalFolder = Paths.get("/home/arsene/git/test")
 
         // When
-        target.synchronizeLocalGitRepositories(fakeLocalFolder)
+        target.synchronizeLocalGitRepositories(fakeLocalFolder, ViewModelProperty<Double>(0.0))
 
         // Then
         val repository = fakeGitService.repositories.values.single()
@@ -206,7 +207,7 @@ class GitApplicationTests {
         coEvery { mockClock.zone } returns ZoneId.systemDefault()
 
         // When
-        target.synchronizeLocalGitRepositories(fakeLocalFolder)
+        target.synchronizeLocalGitRepositories(fakeLocalFolder, ViewModelProperty<Double>(0.0))
 
         // Then
         assertEquals(

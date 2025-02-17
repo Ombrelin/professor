@@ -1,6 +1,7 @@
 package fr.arsenelapostolet.professor.viewmodels
 
 import fr.arsenelapostolet.professor.core.application.GitApplication
+import fr.arsenelapostolet.professor.core.application.StorageService
 import fr.arsenelapostolet.professor.core.services.SecretService
 import fr.arsenelapostolet.professor.viewmodels.utils.DialogService
 import fr.arsenelapostolet.professor.viewmodels.utils.ViewModel
@@ -14,7 +15,8 @@ class GitToolsViewModel(
 ) : ViewModel {
 
     val gitlabTokenAvailable = ViewModelProperty<Boolean>(false)
-    val localGitDirectory = "/home/arsene/git/adv-java-dev"
+    val refreshProgress = ViewModelProperty<Double>(0.0)
+    val repositoriesDirectory = Paths.get("/home/arsene/git/adv-java-student-projects")
 
     override suspend fun init() {
         var token = secretService["GITLAB_TOKEN"]
@@ -29,6 +31,6 @@ class GitToolsViewModel(
     }
 
     suspend fun syncLocalGitRepositories() {
-        gitApplication.synchronizeLocalGitRepositories(Paths.get(localGitDirectory))
+        gitApplication.synchronizeLocalGitRepositories(repositoriesDirectory, refreshProgress)
     }
 }

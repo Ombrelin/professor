@@ -26,10 +26,10 @@ class Student(
         if (lastName != other.lastName) return false
         if (email != other.email) return false
         if (gitlabUsername != other.gitlabUsername) return false
-        if(grades.size != other.grades.size) return false
+        if (grades.size != other.grades.size) return false
 
         for (gradePair in grades.zip(other.grades)) {
-            if(!gradePair.first.equals(gradePair.second)){
+            if (!gradePair.first.equals(gradePair.second)) {
                 return false
             }
         }

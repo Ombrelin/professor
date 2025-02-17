@@ -2,6 +2,7 @@ package fr.arsenelapostolet.professor.viewmodels
 
 import fr.arsenelapostolet.professor.core.application.GitApplication
 import fr.arsenelapostolet.professor.core.application.GitlabService
+import fr.arsenelapostolet.professor.core.application.StorageService
 import fr.arsenelapostolet.professor.fakes.FakeGitService
 import fr.arsenelapostolet.professor.fakes.FakeSecretService
 import fr.arsenelapostolet.professor.fakes.FakeStudentRepository
@@ -11,6 +12,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import java.time.Clock
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,6 +26,7 @@ class GitToolsViewModelTests {
     private val mockGitlabService = mockk<GitlabService>()
     private val fakeSecretService = FakeSecretService()
     private val mockDialogService = mockk<DialogService>()
+    private val storageService = mockk<StorageService>()
 
     private val target = GitToolsViewModel(
         GitApplication(
@@ -32,6 +37,12 @@ class GitToolsViewModelTests {
         fakeSecretService,
         mockDialogService
     )
+
+
+    @BeforeEach
+    fun setUp(@TempDir tempDir: Path) {
+        coEvery { storageService.getStorageDirectoryPath() } returns tempDir
+    }
 
     @Test
     fun `init when Gitlab token doesn't exist, token is unavailable`() = runBlocking {

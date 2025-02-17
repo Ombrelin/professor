@@ -3,9 +3,13 @@ package fr.arsenelapostolet.professor.core.application
 import fr.arsenelapostolet.professor.core.entities.Grade
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
+import fr.arsenelapostolet.professor.core.services.DefaultGitService
+import fr.arsenelapostolet.professor.viewmodels.utils.ViewModelProperty
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.net.URI
 import java.nio.file.Path
@@ -25,6 +29,8 @@ class GitApplication(
             "livrable-4",
             "livrable-5"
         )
+
+        val logger: Logger = LoggerFactory.getLogger(GitApplication::class.java)
     }
 
     suspend fun synchronizeGradesFromGitlab() {
@@ -76,13 +82,16 @@ class GitApplication(
         return grade
     }
 
-    suspend fun synchronizeLocalGitRepositories(localFolder: Path) {
+    suspend fun synchronizeLocalGitRepositories(localFolder: Path, progressPercent: ViewModelProperty<Double>) {
         val duos = getDuos()
-
+        var progressCount = 0
+        progressPercent.value = 0.0
         duos.map {
             coroutineScope {
                 async {
                     processDuo(localFolder, it)
+                    progressCount++
+                    progressPercent.value = progressCount.toDouble() / duos.size.toDouble()
                 }
             }
         }.awaitAll()
@@ -95,14 +104,19 @@ class GitApplication(
 
     private suspend fun processDuo(
         localFolder: Path,
-        duo: Map.Entry<URI, List<Student>>,
+        duo: Map.Entry<URI, List<Student>>
     ) {
-        val localRepositoryFolderPath = localFolder.resolve(getLocalRepositoryFolderName(duo.value))
-        if (gitService.repositoryExists(localRepositoryFolderPath)) {
-            gitService.updateRepository(localRepositoryFolderPath)
-        } else {
-            gitService.cloneRepository(localRepositoryFolderPath, duo.key)
+        try {
+            val localRepositoryFolderPath = localFolder.resolve(getLocalRepositoryFolderName(duo.value))
+            if (gitService.repositoryExists(localRepositoryFolderPath)) {
+                gitService.updateRepository(localRepositoryFolderPath)
+            } else {
+                gitService.cloneRepository(localRepositoryFolderPath, duo.key)
+            }
+        } catch (e: Exception) {
+            logger.error(e.message, e)
         }
+
     }
 
     private fun getLocalRepositoryFolderName(duo: List<Student>): Path {

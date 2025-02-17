@@ -8,7 +8,6 @@ import kotlinx.coroutines.launch
 import org.gnome.adw.ActionRow
 import org.gnome.adw.ExpanderRow
 import org.gnome.adw.PreferencesGroup
-import org.gnome.adw.Spinner
 import org.gnome.gio.Icon
 import org.gnome.gtk.*
 
@@ -56,18 +55,13 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
                 viewModel.updateGitlabToken()
             }
         }
-        //val button = Button()
-        //button.label = "Changer le token"
-        //button.cssClasses = arrayOf("pill", "accent")
-        //subrowSyncButton.addSuffix(button)
-
 
         listRow.addRow(subrowGitlabTokenAvailability)
         listRow.addRow(subrowSyncButton)
 
         val listRowGitSynchronization = ExpanderRow()
         listRowGitSynchronization.title = "Synchronisation des dépôts locaux"
-        listRowGitSynchronization.subtitle = "Synchronise les dé"
+        listRowGitSynchronization.subtitle = "Synchronise les dépôts"
         listRowGitSynchronization.addPrefix(Image.fromResource("/icons/key-symbolic"))
 
         listBox.add(listRow)
@@ -85,12 +79,19 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
         val button = BigButton("Synchronizer les dépôts")
         button.onClicked {
             GlobalScope.launch {
-                val spinner = Spinner()
-                mainFlowBox.append(spinner)
+                val progressBar = ProgressBar()
+                mainFlowBox.append(progressBar)
                 mainFlowBox.remove(button)
+
+                viewModel.refreshProgress.registerHandler {
+                        old, new -> progressBar.fraction = new
+                }
+
                 viewModel.syncLocalGitRepositories()
-                mainFlowBox.remove(spinner)
+                mainFlowBox.remove(progressBar)
                 mainFlowBox.append(button)
+
+
             }
         }
         return button;

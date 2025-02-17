@@ -1,4 +1,7 @@
 package fr.arsenelapostolet.professor.core.exceptions
 
-class InvalidResourceException(message: String?, cause: Throwable?) :
-    RuntimeException(message, cause)
+class InvalidResourceException : RuntimeException {
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
+    constructor(message: String?) : super(message)
+
+}

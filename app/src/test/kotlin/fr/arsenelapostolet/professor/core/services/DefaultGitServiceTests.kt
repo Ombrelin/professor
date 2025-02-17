@@ -1,6 +1,7 @@
 package fr.arsenelapostolet.professor.core.services
 
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.api.Git
@@ -21,6 +22,19 @@ class DefaultGitServiceTests {
 
     val secretService = mockk<SecretService>()
 
+
+    @Test
+    fun `secret fetched at call time not construct time`(@TempDir temporaryDirectory: Path) =
+        runBlocking {
+            // Given
+            coEvery { secretService["GITLAB_TOKEN"] } returns System.getenv("GITLAB_TOKEN")!!
+
+            // When
+            DefaultGitService(secretService)
+
+            // Then
+            coVerify(exactly = 0) { secretService["GITLAB_TOKEN"] }
+        }
 
     @Test
     fun `cloneRepository with non existing repository clones repository to local folder`(@TempDir temporaryDirectory: Path) =

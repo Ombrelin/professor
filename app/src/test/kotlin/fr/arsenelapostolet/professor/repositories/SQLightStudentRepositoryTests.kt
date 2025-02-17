@@ -25,7 +25,7 @@ class SQLightStudentRepositoryTests {
     }
 
     @Test
-    fun `save, when non existing student, appears in getAllStudents` (){
+    fun `save, when non existing student, appears in getAllStudents`() {
         // Given
         val student = StudentBuilder()
             .build()
@@ -41,7 +41,7 @@ class SQLightStudentRepositoryTests {
     }
 
     @Test
-    fun `save, when non existing student with grade, appears in getAllStudents` (){
+    fun `save, when non existing student with grade, appears in getAllStudents`() {
         // Given
         val student = StudentBuilder()
             .withGrades(listOf(Grade(BigDecimal("3.5"), "livrable-1")))
@@ -58,7 +58,7 @@ class SQLightStudentRepositoryTests {
     }
 
     @Test
-    fun `save, when existing student, update their grades` (){
+    fun `save, when existing student, update their grades`() {
         // Given
         val student = StudentBuilder()
             .build()
@@ -77,7 +77,7 @@ class SQLightStudentRepositoryTests {
 
 
     @Test
-    fun `save, when non existing students, appear in getAllStudents` (){
+    fun `save, when non existing students, appear in getAllStudents`() {
         // Given
         val student = StudentBuilder()
             .build()
