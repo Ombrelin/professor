@@ -33,4 +33,8 @@ class GitToolsViewModel(
     suspend fun syncLocalGitRepositories() {
         gitApplication.synchronizeLocalGitRepositories(repositoriesDirectory, refreshProgress)
     }
+
+    suspend fun syncGrades() {
+        gitApplication.synchronizeGradesFromGitlab()
+    }
 }

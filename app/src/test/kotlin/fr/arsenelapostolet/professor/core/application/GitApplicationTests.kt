@@ -109,7 +109,7 @@ class GitApplicationTests {
             fakeStudentRepository.data[secondDuoOtherStudent.id] = secondDuoOtherStudent
 
             val firstDuoComment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -121,7 +121,7 @@ class GitApplicationTests {
             """.trimIndent()
 
             val secondDuoComment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -227,7 +227,7 @@ class GitApplicationTests {
             fakeStudentRepository.data[student.id] = student
 
             val comment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -278,7 +278,7 @@ class GitApplicationTests {
             fakeStudentRepository.data[student.id] = student
 
             val comment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -326,7 +326,7 @@ class GitApplicationTests {
             fakeStudentRepository.data[otherStudent.id] = otherStudent
 
             val comment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -389,7 +389,7 @@ class GitApplicationTests {
             fakeStudentRepository.data[secondDuoOtherStudent.id] = secondDuoOtherStudent
 
             val firstDuoDeliverable1Comment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -401,7 +401,7 @@ class GitApplicationTests {
             """.trimIndent()
 
             val secondDeliverable1Comment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -413,7 +413,7 @@ class GitApplicationTests {
             """.trimIndent()
 
             val firstDuoDeliverable2Comment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2
@@ -425,7 +425,7 @@ class GitApplicationTests {
             """.trimIndent()
 
             val secondDeliverable2Comment = """
-                Correction livrable 1 :
+                Notation livrable 1 :
 
                 Fonctionnalités : 2/2
                 Qualité : 1.3/2

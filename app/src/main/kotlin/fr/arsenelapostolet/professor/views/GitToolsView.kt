@@ -70,6 +70,7 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
         mainFlowBox.append(listBox)
 
         mainFlowBox.append(buildSynchronizeButton())
+        mainFlowBox.append(buildSynchronizeGradesButton())
 
 
         viewModel.gitlabTokenAvailable.registerHandler { old, new -> labelAvailability.text = new.toString() }
@@ -89,6 +90,24 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
 
                 viewModel.syncLocalGitRepositories()
                 mainFlowBox.remove(progressBar)
+                mainFlowBox.append(button)
+
+
+            }
+        }
+        return button;
+    }
+
+    private fun buildSynchronizeGradesButton(): BigButton {
+        val button = BigButton("Synchronizer les notes")
+        button.onClicked {
+            GlobalScope.launch {
+                val spinner = Spinner()
+                mainFlowBox.append(spinner)
+                mainFlowBox.remove(button)
+
+                viewModel.syncGrades()
+                mainFlowBox.remove(spinner)
                 mainFlowBox.append(button)
 
 
