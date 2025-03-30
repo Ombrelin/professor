@@ -11,10 +11,10 @@ repositories {
 
 dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
-    implementation("de.swiesend:secret-service:2.0.1-alpha")
+    //implementation("de.swiesend:secret-service:2.0.1-alpha")
     implementation(libs.libadwaita)
     implementation("org.kodein.di:kodein-di:7.22.0")
-    implementation("de.swiesend:secret-service:2.0.1-alpha")
+    // implementation("de.swiesend:secret-service:2.0.1-alpha")
     implementation("ch.qos.logback:logback-classic:1.5.15")
     // implementation("org.gitlab4j:gitlab4j-api:6.0.0-rc.8")
     implementation("org.xerial:sqlite-jdbc:3.47.2.0")
