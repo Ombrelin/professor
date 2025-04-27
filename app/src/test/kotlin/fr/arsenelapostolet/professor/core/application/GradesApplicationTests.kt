@@ -19,13 +19,11 @@ class GradeApplicationTests {
             .lines()
 
         // When
-        val result = target.createClass("lsi1", csvLines)
+        val result = target.importStudents(csvLines)
 
         // Then
-        assertEquals("lsi1", result.name)
-        assertEquals(result.name, "lsi1")
-        assertEquals(result.students.size, csvLines.size - 1)
-        for (student in result.students) {
+        assertEquals(result.size, csvLines.size - 1)
+        for (student in result) {
             assertNotNull(student.id)
             assertEquals(0, student.grades.size)
             assertNotNull(student.firstName)
@@ -34,6 +32,7 @@ class GradeApplicationTests {
             assertContains(student.email, "@")
             assertNotNull(student.gitlabUsername)
             assertNotNull(student.projectUrl)
+            assertContains(listOf("lsi1", "lsi2"), student.efreiClass)
         }
     }
 

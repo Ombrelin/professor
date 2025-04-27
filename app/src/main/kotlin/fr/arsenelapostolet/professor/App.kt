@@ -58,14 +58,14 @@ class App(args: Array<String>?) {
     private fun buildViewStack(kodein: DI): ViewStack = ViewStack()
         .also {
             it.addTitledWithIcon(
-                kodein.direct.instance<StudentsView>(),
+                kodein.direct.instance<StudentsView>().getWidget(),
                 "students",
                 "Étudiants",
                 "avatar-default-symbolic"
             )
             it.addTitledWithIcon(buildGradesPage(), "grades", "Notes", "object-select-symbolic")
             it.addTitledWithIcon(
-                kodein.direct.instance<GitToolsView>(),
+                kodein.direct.instance<GitToolsView>().getWidget(),
                 "git-tools",
                 "Outils Git",
                 "preferences-system"
@@ -92,7 +92,7 @@ class App(args: Array<String>?) {
     }
 
     private fun connectToLocalDatabase(localStorageDirectory: Path): Connection {
-        val dbFilePath = localStorageDirectory.resolve("test.db")
+        val dbFilePath = localStorageDirectory.resolve("professor.db")
         val url = "jdbc:sqlite:${dbFilePath}"
         return DriverManager
             .getConnection(url);

@@ -12,8 +12,9 @@ import org.gnome.gio.Icon
 import org.gnome.gtk.*
 
 @OptIn(DelicateCoroutinesApi::class)
-class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() {
+class GitToolsView(private val viewModel: GitToolsViewModel) : View {
 
+    private val mainScrollWindow = ScrolledWindow()
     private val mainFlowBox = buildFlowBox()
 
     init {
@@ -22,7 +23,7 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
             viewModel.init()
         }
 
-        child = mainFlowBox
+        mainScrollWindow.child = mainFlowBox
 
         val listRow = ExpanderRow()
         listRow.title = "Token Gitlab"
@@ -132,4 +133,6 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
         listBox.setSizeRequest(550, 64)
         return listBox
     }
+
+    override fun getWidget(): Widget = mainScrollWindow
 }

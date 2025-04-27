@@ -1,6 +1,5 @@
 package fr.arsenelapostolet.professor.core.application
 
-import fr.arsenelapostolet.professor.core.contracts.CreateClassResponse
 import fr.arsenelapostolet.professor.core.entities.Student
 import fr.arsenelapostolet.professor.core.exceptions.InvalidResourceException
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
@@ -13,23 +12,20 @@ class GradesApplication(private val studentRepository: StudentRepository) {
         return studentRepository.getAllStudents()
     }
 
-    fun createClass(className: String, csvLines: Collection<String>): CreateClassResponse {
+    fun importStudents(csvLines: Collection<String>): Set<Student> {
         val students = csvLines
             .drop(1)
-            .map { line: String -> line.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray() }
-            .map { csvLine: Array<String> -> parseStudentFromCsv(className, csvLine) }
+            .map { line: String -> line.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray() }
+            .map { csvLine: Array<String> -> parseStudentFromCsv(csvLine) }
 
-        return CreateClassResponse(
-            className,
-            studentRepository.saveStudents(students.toSet())
-        )
+        return studentRepository.saveStudents(students.toSet())
     }
 
-    private fun parseStudentFromCsv(className: String, csvLine: Array<String>): Student {
-        if(csvLine.size != 7){
+    private fun parseStudentFromCsv(csvLine: Array<String>): Student {
+        if(csvLine.size < 7){
             throw InvalidResourceException(
                 String.format(
-                    "Line with id %s is invalid : %s",
+                    "Line with id %s too few columns : %s",
                     csvLine[0],
                     csvLine.joinToString(",")
                 )
@@ -38,14 +34,14 @@ class GradesApplication(private val studentRepository: StudentRepository) {
 
         try {
             return Student(
-                csvLine[0],
                 csvLine[1],
                 csvLine[2],
-                csvLine[4],
+                csvLine[3],
                 csvLine[5],
+                csvLine[6],
                 mutableListOf(),
-                className,
-                URI(csvLine[6])
+                csvLine[0],
+                URI(csvLine[7])
             )
         } catch (uriSyntaxException: URISyntaxException) {
             throw InvalidResourceException(

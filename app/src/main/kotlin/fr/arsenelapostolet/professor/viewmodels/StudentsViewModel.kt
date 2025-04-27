@@ -18,6 +18,6 @@ class StudentsViewModel(val gradesApplication: GradesApplication, val fileServic
 
     suspend fun importClass() {
         val filePath = fileService.pickFile()
-        students.value = gradesApplication.createClass("TEST", File(filePath).readLines()).students
+        students.value = gradesApplication.importStudents(File(filePath).readLines())
     }
 }

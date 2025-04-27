@@ -14,8 +14,12 @@ import org.gnome.gio.Icon
 import org.gnome.gtk.*
 
 @OptIn(DelicateCoroutinesApi::class)
-class StudentsView(private val window: ApplicationWindow, private val viewModel: StudentsViewModel) : ScrolledWindow() {
+class StudentsView(
+    private val window: ApplicationWindow,
+    private val viewModel: StudentsViewModel,
+) : View {
 
+    private val mainScrollWindow = ScrolledWindow()
     private val mainFlowBox = buildFlowBox()
 
     init {
@@ -23,37 +27,39 @@ class StudentsView(private val window: ApplicationWindow, private val viewModel:
         GlobalScope.launch {
             viewModel.init()
         }
-        child = mainFlowBox
-        (this.child as Viewport).scrollToFocus = false
+        mainScrollWindow.child = mainFlowBox
+        (mainScrollWindow.child as Viewport).scrollToFocus = false
     }
+
+    override fun getWidget(): Widget = mainScrollWindow
 
     private fun buildFlowBox(): FlowBox = FlowBox
         .builder()
         .setValign(Align.CENTER)
         .setHalign(Align.CENTER)
+        .setOrientation(Orientation.VERTICAL)
         .setMarginStart(64)
         .setSelectionMode(SelectionMode.NONE)
         .build()
 
     private fun renderStudentList() {
         mainFlowBox.removeAll()
+
+        val importStudentButton = buildImportStudentButton()
+        mainFlowBox.append(importStudentButton)
+
         val spinner = Spinner()
         spinner.setSizeRequest(128, 128)
         mainFlowBox.append(spinner)
 
-        if (!viewModel.studentsLoaded) {
-            val importStudentButton = buildImportStudentButton()
-            mainFlowBox.removeAll()
-            mainFlowBox.append(importStudentButton)
-        } else {
-            val studentsListBox = createStudentsListBox()
 
-            for (student in viewModel.students.value) {
-                buildStudentListBoxRow(student, studentsListBox)
-            }
-            mainFlowBox.removeAll()
-            mainFlowBox.append(studentsListBox)
+        val studentsListBox = createStudentsListBox()
+
+        for (student in viewModel.students.value) {
+            buildStudentListBoxRow(student, studentsListBox)
         }
+        mainFlowBox.append(studentsListBox)
+        mainFlowBox.remove(spinner)
     }
 
     private fun createStudentsListBox(): PreferencesGroup {
