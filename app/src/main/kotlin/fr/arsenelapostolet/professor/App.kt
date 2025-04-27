@@ -29,7 +29,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 
-class AppKt(args: Array<String>?) {
+class App(args: Array<String>?) {
 
     private val app: Application = Application("fr.arsenelapostolet.Professor", ApplicationFlags.DEFAULT_FLAGS)
 
@@ -133,7 +133,7 @@ class AppKt(args: Array<String>?) {
             try {
                 var resource = Resource.load("src/main/resources/professor.gresource");
                 resource.resourcesRegister();
-                AppKt(args)
+                App(args)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

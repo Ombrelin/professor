@@ -1,6 +1,7 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    java
     application
+    kotlin("jvm")
 }
 
 repositories {
@@ -11,15 +12,17 @@ repositories {
 dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
     implementation("de.swiesend:secret-service:2.0.1-alpha")
-    implementation(libs.libadwaita)
+    implementation("io.github.jwharm.javagi:adw:0.11.2")
     implementation("org.kodein.di:kodein-di:7.22.0")
     implementation("de.swiesend:secret-service:2.0.1-alpha")
     implementation("ch.qos.logback:logback-classic:1.5.15")
-    implementation("org.gitlab4j:gitlab4j-api:6.0.0-rc.8")
+    implementation("org.gitlab4j:gitlab4j-api:6.0.0-rc.10")
     implementation("org.xerial:sqlite-jdbc:3.47.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+    implementation(kotlin("stdlib-jdk8"))
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation(libs.junit.jupiter.engine)
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.3")
     testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.3")
 
@@ -33,7 +36,7 @@ java {
 }
 
 application {
-    mainClass = "fr.arsenelapostolet.professor.AppKt"
+    mainClass = "fr.arsenelapostolet.professor.App"
 }
 
 tasks.named<Test>("test") {
