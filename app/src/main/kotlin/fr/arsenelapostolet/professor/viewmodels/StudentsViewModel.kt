@@ -18,6 +18,7 @@ class StudentsViewModel(val gradesApplication: GradesApplication, val fileServic
 
     suspend fun importClass() {
         val filePath = fileService.pickFile()
-        students.value = gradesApplication.importStudents(File(filePath).readLines())
+        gradesApplication.importStudents(File(filePath).readLines())
+        students.value = gradesApplication.getStudent()
     }
 }

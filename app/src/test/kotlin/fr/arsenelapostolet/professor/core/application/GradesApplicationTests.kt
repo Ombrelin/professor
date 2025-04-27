@@ -5,6 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class GradeApplicationTests {
 
@@ -23,6 +24,17 @@ class GradeApplicationTests {
 
         // Then
         assertEquals(result.size, csvLines.size - 1)
+
+        val firstStudent = result.first()
+        assertEquals("lsi1", firstStudent.efreiClass)
+        assertEquals("40284284", firstStudent.id)
+        assertEquals("Tessy", firstStudent.firstName)
+        assertEquals("Grundey", firstStudent.lastName)
+        assertEquals("tgrundey0@free.fr", firstStudent.email)
+        assertEquals("Tessy Grundey", firstStudent.fullName)
+        assertEquals("mlitda12", firstStudent.gitlabUsername)
+        assertTrue(firstStudent.projectUrl.toString().contains("http"))
+
         for (student in result) {
             assertNotNull(student.id)
             assertEquals(0, student.grades.size)

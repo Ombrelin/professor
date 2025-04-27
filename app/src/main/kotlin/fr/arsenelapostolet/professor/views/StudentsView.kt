@@ -37,28 +37,31 @@ class StudentsView(
         .builder()
         .setValign(Align.CENTER)
         .setHalign(Align.CENTER)
-        .setOrientation(Orientation.VERTICAL)
         .setMarginStart(64)
         .setSelectionMode(SelectionMode.NONE)
+        .setMaxChildrenPerLine(1)
+        .setRowSpacing(16)
         .build()
 
     private fun renderStudentList() {
         mainFlowBox.removeAll()
-
-        val importStudentButton = buildImportStudentButton()
-        mainFlowBox.append(importStudentButton)
-
         val spinner = Spinner()
         spinner.setSizeRequest(128, 128)
         mainFlowBox.append(spinner)
 
+        val importStudentButton = buildImportStudentButton()
+        mainFlowBox.append(importStudentButton)
 
-        val studentsListBox = createStudentsListBox()
+        if(this.viewModel.studentsLoaded){
 
-        for (student in viewModel.students.value) {
-            buildStudentListBoxRow(student, studentsListBox)
+            val studentsListBox = createStudentsListBox()
+
+            for (student in viewModel.students.value) {
+                buildStudentListBoxRow(student, studentsListBox)
+            }
+            mainFlowBox.append(studentsListBox)
+
         }
-        mainFlowBox.append(studentsListBox)
         mainFlowBox.remove(spinner)
     }
 
@@ -132,7 +135,7 @@ class StudentsView(
     }
 
     private fun buildImportStudentButton(): Button {
-        return BigButton("Import class...") {
+        return BigButton("Importer des étudiant⋅e⋅s") {
             GlobalScope.launch {
                 viewModel.importClass()
             }

@@ -39,6 +39,22 @@ class StudentViewModelTest {
     }
 
     @Test
+    fun `When importing a new class from file twice, all students are loaded in db and studentsLoaded is true`() = runBlocking {
+        target.init()
+        val testFilePath = StudentViewModelTest::class.java.getResource("/students.csv").path
+        val otherTestFilePath = StudentViewModelTest::class.java.getResource("/other-students.csv").path
+        coEvery { mockFilPicker.pickFile() } returnsMany listOf(testFilePath, otherTestFilePath)
+
+        target.importClass()
+        target.importClass()
+
+        assertEquals(76, fakeRepository.data.size)
+        assertEquals(76, target.students.value.size)
+        assertTrue(target.studentsLoaded)
+    }
+
+
+    @Test
     fun `When initializing viewmodel with student in database, studentsLoaded is true`() = runBlocking {
         fakeRepository.data["1"] = Student(
             "40284284",

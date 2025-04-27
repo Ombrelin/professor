@@ -11,7 +11,7 @@ class FakeStudentRepository(data: Map<String, Student> = emptyMap()) : StudentRe
             data[student.id] = student
         }
 
-        return data.values.toSet();
+        return students.toSet();
     }
 
     override fun getAllStudents(): Set<Student> = data.values.toSet();

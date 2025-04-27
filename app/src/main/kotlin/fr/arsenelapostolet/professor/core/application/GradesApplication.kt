@@ -26,8 +26,8 @@ class GradesApplication(private val studentRepository: StudentRepository) {
             throw InvalidResourceException(
                 String.format(
                     "Line with id %s too few columns : %s",
-                    csvLine[0],
-                    csvLine.joinToString(",")
+                    csvLine[1],
+                    csvLine.joinToString(";")
                 )
             )
         }
@@ -35,8 +35,8 @@ class GradesApplication(private val studentRepository: StudentRepository) {
         try {
             return Student(
                 csvLine[1],
-                csvLine[2],
                 csvLine[3],
+                csvLine[2],
                 csvLine[5],
                 csvLine[6],
                 mutableListOf(),
