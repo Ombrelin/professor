@@ -122,6 +122,8 @@ class GitToolsView(private val viewModel: GitToolsViewModel) : ScrolledWindow() 
         flowBox.halign = Align.CENTER
         flowBox.marginStart = 64
         flowBox.selectionMode = SelectionMode.NONE
+        flowBox.maxChildrenPerLine = 1
+        flowBox.rowSpacing = 8
         return flowBox
     }
 
