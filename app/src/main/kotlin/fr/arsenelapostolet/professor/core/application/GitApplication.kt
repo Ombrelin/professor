@@ -42,11 +42,10 @@ class GitApplication(
         val comments =
             gitlabService.getMergeRequestsWithLabelComments(projectsNames, deliverables.map { "${it}-corrige" })
 
-        val gradedStudents = mutableSetOf<Student>()
         for (comment in comments) {
             updateStudentsGrades(comment, duos)
         }
-        studentRepository.saveStudents(gradedStudents)
+        studentRepository.saveStudents(duos.flatMap { it.value }.toSet())
     }
 
     private fun updateStudentsGrades(
@@ -56,7 +55,7 @@ class GitApplication(
         val grade = parseGrade(comment)
         val duo = duos
             .values
-            .single { it.any { student -> student.gitlabUsername == comment.mergeRequestAuthorUsername } }
+            .single { it.any { student -> student.projectUrl.toString().contains(comment.project) } }
 
         val deliverable = comment.label.replace("-corrige", "")
 

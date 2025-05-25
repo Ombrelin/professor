@@ -7,6 +7,6 @@ interface GitlabService {
         labels: List<String>,
     ): List<GradedMergeRequestComment>
 
-    data class GradedMergeRequestComment(val mergeRequestAuthorUsername: String, val comment: String, val label: String)
+    data class GradedMergeRequestComment(val project: String, val comment: String, val label: String)
 
 }

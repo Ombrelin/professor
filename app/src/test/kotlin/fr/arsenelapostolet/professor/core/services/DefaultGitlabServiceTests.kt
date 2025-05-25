@@ -20,7 +20,7 @@ class DefaultGitlabServiceTests {
 
 
     @Test
-    fun `getMergeRequestsWithLabelComments, one project, one label and one merge reqest`() =
+    fun `getMergeRequestsWithLabelComments, one project, one label and one merge request`() =
         runBlocking {
             // Given
             coEvery { secretService["GITLAB_TOKEN"] } returns System.getenv("GITLAB_TOKEN")!!
@@ -41,10 +41,10 @@ class DefaultGitlabServiceTests {
             // Then
             assertEquals(1, result.size)
             assertEquals("test-label-1", result.single().label)
-            assertEquals("Ombrelin", result.single().mergeRequestAuthorUsername)
+            assertEquals("Ombrelin/jgit-test-project", result.single().project)
             assertEquals(
                 """
-                    Correction livrable 1 :
+                    Notation livrable 1 :
                     
                     Fonctionnalités : 2/2
                     Qualité : 1.3/2
@@ -59,7 +59,7 @@ class DefaultGitlabServiceTests {
         }
 
     @Test
-    fun `getMergeRequestsWithLabelComments, one project, two label and two merge reqest`() =
+    fun `getMergeRequestsWithLabelComments, one project, two label and two merge request`() =
         runBlocking {
             // Given
             coEvery { secretService["GITLAB_TOKEN"] } returns System.getenv("GITLAB_TOKEN")!!
@@ -81,7 +81,7 @@ class DefaultGitlabServiceTests {
             assertEquals(2, result.size)
             assertNotNull(result.single { it.label == "test-label-1" })
             assertNotNull(result.single { it.label == "test-label-2" })
-            assertTrue(result.all { it.mergeRequestAuthorUsername == "Ombrelin" })
+            assertTrue(result.all { it.project == "Ombrelin/jgit-test-project" })
         }
 
     @Test
@@ -108,7 +108,7 @@ class DefaultGitlabServiceTests {
             assertNotNull(result.single { it.label == "test-label-1" })
             assertNotNull(result.single { it.label == "test-label-2" })
             assertNotNull(result.single { it.label == "test-label-3" })
-            assertTrue(result.all { it.mergeRequestAuthorUsername == "Ombrelin" })
+            assertTrue(result.all { it.project == "Ombrelin/jgit-test-project" })
         }
 
 }

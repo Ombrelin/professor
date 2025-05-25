@@ -1,56 +1,83 @@
 package fr.arsenelapostolet.professor.core.services
 
+import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.Optional
+import com.apollographql.apollo.api.http.HttpRequest
+import com.apollographql.apollo.api.http.HttpResponse
+import com.apollographql.apollo.network.http.HttpInterceptor
+import com.apollographql.apollo.network.http.HttpInterceptorChain
 import fr.arsenelapostolet.professor.core.application.GitlabService
 import fr.arsenelapostolet.professor.core.application.GitlabService.GradedMergeRequestComment
-import org.gitlab4j.api.GitLabApi
-import org.gitlab4j.api.models.MergeRequestFilter
+import fr.arsenelapostolet.professor.gitlabgraphql.GradesQuery
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneOffset
-import java.util.*
 
 class DefaultGitlabService(
     secretService: SecretService,
 ) : GitlabService {
 
-    companion object {
-        const val gitlabUrl = "https://gitlab.com"
-    }
-
-    private val gitlabApi = GitLabApi(gitlabUrl, secretService["GITLAB_TOKEN"])
+    val apolloClient = ApolloClient.Builder()
+        .serverUrl("https://gitlab.com/api/graphql")
+        .addHttpInterceptor(AuthInterceptor(secretService))
+        .build()
 
     override suspend fun getMergeRequestsWithLabelComments(
         projects: List<String>,
         labels: List<String>,
     ): List<GradedMergeRequestComment> {
-        val filter = MergeRequestFilter()
-            .withLabels(listOf("Any"))
-            .withCreatedAfter(
-                Date(
-                    LocalDate
-                        .now()
-                        .minusMonths(4)
-                        .atTime(LocalTime.NOON)
-                        .toInstant(ZoneOffset.UTC)
-                        .toEpochMilli()
+        val responses = labels.map {
+            apolloClient
+                .query(
+                    GradesQuery(
+                        Optional.present(projects),
+                        Optional.present("${LocalDate.now().year}-01-01"),
+                        Optional.present(listOf(it))
+                    )
                 )
-            )
-        val mergeRequests = gitlabApi
-            .mergeRequestApi
-            .getMergeRequests(filter)
-            .filter { it.labels.any { label -> label in labels } }
-
-        return mergeRequests
-            .flatMap {
-                gitlabApi
-                    .notesApi.getMergeRequestNotes(it.projectId, it.iid)
-                    .map { note ->
-                        Triple(it.author.username, note, it.labels.filter { label -> label.contains("") })
+        }
+            .map {
+                coroutineScope {
+                    async {
+                        it.execute()
                     }
-                    .filter { it.second.body.contains("Correction livrable") }
-                    .map { GradedMergeRequestComment(it.first, it.second.body, it.third.first()) }
+                }
+            }.awaitAll()
+
+        return responses
+            .flatMap { it.data?.projects?.nodes.orEmpty() }
+            .map { Pair(it?.fullPath, it?.mergeRequests?.nodes.orEmpty()) }
+            .filter { it.second.isNotEmpty() }
+            .map { Pair(it.first, it.second.single()) }
+            .map {
+                val comment =
+                    it.second!!.notes.nodes.orEmpty().firstOrNull { note -> note!!.body.contains("Notation") }
+
+                if(comment == null){
+                    throw IllegalArgumentException("Le projet ${it.first} a une demande de fusion (${it.second!!.title}) sans commentaire de correction")
+                }
+
+                GradedMergeRequestComment(
+                    it.first!!,
+                    comment.body,
+                    it.second?.labels?.nodes.orEmpty().first { label -> label!!.title.contains("livrable") }!!.title
+                )
             }
+    }
 
-
+    private class AuthInterceptor(val secretService: SecretService) : HttpInterceptor {
+        override suspend fun intercept(
+            request: HttpRequest,
+            chain: HttpInterceptorChain
+        ): HttpResponse {
+            return chain
+                .proceed(
+                    request
+                        .newBuilder()
+                        .addHeader("Authorization", "Bearer ${secretService["GITLAB_TOKEN"]}")
+                        .build()
+                )
+        }
     }
 }

@@ -3,6 +3,7 @@
  */
 package fr.arsenelapostolet.professor
 
+import com.apollographql.apollo.ApolloClient
 import fr.arsenelapostolet.professor.core.application.*
 import fr.arsenelapostolet.professor.core.repositories.StudentRepository
 import fr.arsenelapostolet.professor.core.services.*
@@ -90,6 +91,7 @@ class App(args: Array<String>?) {
         bindSingleton<GitlabService> { DefaultGitlabService(instance()) }
         bindSingleton<StorageService> { storageService }
     }
+
 
     private fun connectToLocalDatabase(localStorageDirectory: Path): Connection {
         val dbFilePath = localStorageDirectory.resolve("professor.db")

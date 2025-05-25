@@ -1,0 +1,27 @@
+query GradesQuery($projectsPath: [String!], $createdAfterDate: Time, $labels: [String!]) {
+    projects(fullPaths: $projectsPath) {
+        nodes {
+            fullPath,
+            mergeRequests(createdAfter: $createdAfterDate, labelName: $labels) {
+                nodes {
+                    title
+                    createdAt
+                    labels {
+                        nodes {
+                            title
+                        }
+                    }
+                    notes(filter: ONLY_COMMENTS, last: 100) {
+                        nodes {
+                            body
+                        }
+                    }
+                }
+            }
+        }
+    }
+    queryComplexity {
+        limit
+        score
+    }
+}

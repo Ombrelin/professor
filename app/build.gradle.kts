@@ -2,6 +2,7 @@ plugins {
     java
     application
     kotlin("jvm")
+    id("com.apollographql.apollo") version "4.2.0"
 }
 
 repositories {
@@ -20,6 +21,8 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.47.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
     implementation(kotlin("stdlib-jdk8"))
+
+    implementation("com.apollographql.apollo:apollo-runtime:4.2.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.3")
@@ -47,6 +50,19 @@ tasks.register<Test>("testCi") {
     useJUnitPlatform()
     filter {
         excludeTestsMatching("fr.arsenelapostolet.professor.core.services.FreeDesktopSecretServiceTests")
+    }
+
+}
+
+apollo {
+
+    service("service") {
+
+        packageName.set("fr.arsenelapostolet.professor.gitlabgraphql")
+        introspection {
+            endpointUrl.set("https://gitlab.com/api/graphql")
+            schemaFile.set(file("src/main/graphql/schema.graphqls"))
+        }
     }
 
 }
